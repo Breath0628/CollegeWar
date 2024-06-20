@@ -5,7 +5,9 @@
 #include "menu_scene.h"
 #include "game_scene.h"
 #include "selector_scene.h"
+#include "rank_scene.h"
 #include "scene_manager.h"
+
 
 #include "player.h"
 #include "platform.h"
@@ -18,6 +20,7 @@
 Scene* menu_scene = nullptr;
 Scene* game_scene = nullptr;
 Scene* selector_scene = nullptr;
+Scene* rank_scene = nullptr;
 SceneManager* scene_manager;
 Camera main_camera;
 std::vector<Platform> platform_list; //平台对象
@@ -40,6 +43,7 @@ int main() {
 	menu_scene = new MenuScene();
 	game_scene = new GameScene();
 	selector_scene = new SelectorScene();
+	rank_scene = new RankScene();
 	scene_manager = new SceneManager();
 
 	scene_manager->set_current_scene(menu_scene);

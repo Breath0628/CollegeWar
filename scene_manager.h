@@ -5,6 +5,7 @@
 extern Scene* menu_scene;
 extern Scene* game_scene;
 extern Scene* selector_scene;
+extern Scene* rank_scene;
 
 class SceneManager {
 
@@ -13,7 +14,8 @@ public:
 	{
 		Menu,
 		Game,
-		Selector
+		Selector,
+		Rank
 	};
 
 	SceneManager() =default;
@@ -36,6 +38,9 @@ public:
 			break;
 		case SceneManager::SceneType::Selector:
 			current_scene = selector_scene;
+			break;
+		case SceneManager::SceneType::Rank:
+			current_scene = rank_scene;
 			break;
 		default:
 			break;

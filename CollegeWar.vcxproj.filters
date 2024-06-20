@@ -87,6 +87,9 @@
     <ClInclude Include="sunflower_player.h">
       <Filter>头文件\角色</Filter>
     </ClInclude>
+    <ClInclude Include="rank_scene.h">
+      <Filter>头文件\场景</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
