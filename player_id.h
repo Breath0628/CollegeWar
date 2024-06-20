@@ -1,0 +1,5 @@
+#pragma once
+enum class PlayerID//Ê¶±ðÍæ¼Ò
+{
+	P1, P2
+};
