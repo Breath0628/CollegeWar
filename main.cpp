@@ -32,6 +32,8 @@ Client client("10.81.161.229","27015");
 
 int main() {
 	ExMessage msg;
+	int sendCount = 0;
+	int recvCount = 0;
 	const int FPS = 60;
 	load_game_resources();
 	initgraph(1280, 720);
@@ -63,7 +65,9 @@ int main() {
 			if (last_msg.message!=msg.message)
 			{
 				client.SendData((char*)&msg);//将消息事件发送给服务器
+				sendCount++;
 				last_msg = msg;
+				cout << "数据总发送" << sendCount << endl;
 			}
 			
 		
@@ -74,6 +78,8 @@ int main() {
 			memcpy(&msg, client.DataQueue.front(), 1024);
 			scene_manager->on_input(msg);
 			client.DataQueue.pop();
+			recvCount++;
+			cout << "数据总接收" << recvCount << endl;
 		}
 
 		//每帧逻辑更新时间
