@@ -1,54 +1,160 @@
 #pragma once
-#include "vector2.h"
-#include "timer.h"
 
-class  Camera
+#define WIN32_LEAN_AND_MEAN
+#include <queue>
+#include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <graphics.h>
+#include "client.h"
+
+#include <iostream>
+#include <thread>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+#include <chrono>
+// Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
+#pragma comment (lib, "Ws2_32.lib")
+#pragma comment (lib, "Mswsock.lib")
+#pragma comment (lib, "AdvApi32.lib")
+
+#define DEFAULT_BUFLEN 1024
+using namespace std;
+
+
+class Client
 {
+private:
+    WSADATA wsaData;
+    SOCKET ConnectSocket = INVALID_SOCKET;
+    struct addrinfo* result = NULL, * ptr = NULL, hints;
+    char sendbuf[1024];
+    char recvbuf[1024];
+    int iResult;
+    int recvbuflen = DEFAULT_BUFLEN;
+    bool isOpen = 0;
 public:
-	Camera() {
-		timer_shake.set_one_shot(1);
-		timer_shake.set_callback(
-			[&]() {
-				is_shaking = 0;
-				reset();
-			}
-		);
-	};
-	~ Camera() = default;
+    queue<char*> DataQueue;
+    thread DataQueueThread;
+public:
+    Client(const char* ServerIp, const char* ServerPort)
+    {  // 初始化winsocket
+        iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+        if (iResult != 0) {
+            printf("WSAStartup failed with error: %d\n", iResult);
+        }
 
-	const Vector2<float>& getPos() const{
-		return position;
-	}
+        ZeroMemory(&hints, sizeof(hints));
+        hints.ai_family = AF_UNSPEC;
+        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_protocol = IPPROTO_TCP;
+        //写入连接地址和端口
+        iResult = getaddrinfo(ServerIp, ServerPort, &hints, &result);
+        if (iResult != 0) {
+            printf("getaddrinfo failed with error: %d\n", iResult);
+            WSACleanup();
+        }
+        StartDataQueue();
+        DataQueueThread.detach();
+    }
 
-	void reset() {
-		position.x = 0;
-		position.y = 0;
-	}
+    ~Client() = default;
+    int ConnectServer() {
+        ptr = result;
+        // 创建连接套接字
+        ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+        if (ConnectSocket == INVALID_SOCKET) {
+            printf("socket failed with error: %ld\n", WSAGetLastError());
+            WSACleanup();
+        }
+        for (int i = 0; i < 3;i++) {
+            // 连接服务器 最大重连3次
+            iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
+            if (iResult == SOCKET_ERROR) {
+                closesocket(ConnectSocket);
+                ConnectSocket = INVALID_SOCKET;
+                continue;
+            }
+            break;
+        }
+        if (ConnectSocket == INVALID_SOCKET) {
+            printf("Unable to connect to server!\n");
+            WSACleanup();
+        }
+        isOpen = 1;
+        return iResult;
+    }
 
-	void on_update(int delta) {
-		//const Vector2 <float> speed = { -0.35f, 0 };
-		//position += speed * float(delta);  
-		timer_shake.on_update(delta);
-		if (is_shaking) {
-			position.x = (-50 + rand() % 100) / 50.0f * shaking_strength;
-			position.y = (-50 + rand() % 100) / 50.0f * shaking_strength;
-		}
-	}
+    int SendData(const char* sendbuf) {
+        //发送字符串数据 成功返回0 失败返回-1
+        for (size_t i = 0; i < 3; i++)
+        {
+            //最大重发三次
+            iResult = send(ConnectSocket, sendbuf, 1024, 0);
+            if (iResult == SOCKET_ERROR) {
+                printf("send failed with error: %d\n", WSAGetLastError());
+                WSACleanup();
+                continue;
+            }
+            break;
+        }
+        return iResult;
 
-	void shake(float strength,int duration) //摄像机抖动
-	{
-		is_shaking = 1;
-		shaking_strength = strength;
+    }
+    int ReceveData(char* recvbuf) {
+        // Receive until the Server closes the connection
 
-		timer_shake.set_wait_time(duration);//设置结束抖动定时器
-		timer_shake.restart();
-	}
+        iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
+        if (iResult == 0) {
+            CloseConnect();
+            printf("Connection closed\n");
+        }
+        else if (iResult < 0) {
+            printf("recv failed with error: %d\n", WSAGetLastError());
+        }
+
+
+        return iResult;
+
+    }
+    void StartDataQueue() {
+        DataQueueThread = thread([&]() {
+            while (isOpen)
+            {
+                iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
+                if (iResult > 0)
+                {
+                    DataQueue.push(recvbuf);
+                    printf("数据队列获取到数据!\n");
+                }
+            }
+            }
+        );
+    }
+    void CloseConnect() {
+        // cleanup
+        closesocket(ConnectSocket);
+        WSACleanup();
+        isOpen = 0;
+    }
 
 private:
-	Vector2<float> position;//摄像机位置
-
-	Timer timer_shake;//抖动计时器
-	bool is_shaking = 0;//摄像机是否正在抖动
-	float shaking_strength = 0;//抖动幅度
 
 };
+
+// 通用序列化函数模板，将结构体转化为字节流
+template <typename T>
+void StructToChar(T* data, char*& buffer) {
+
+    buffer = (char*)data;
+
+}
+
+// 通用反序列化函数模板，将字节流转化为结构体
+template <typename T>
+void CharToStruct(char* buffer, T* data) {
+    data = (T*)buffer;
+}

@@ -37,6 +37,7 @@ public:
 			scene_manager->switch_to(SceneManager::SceneType::Selector);
 		}
 	};
+
 	void on_exit() {
 	}
 	
