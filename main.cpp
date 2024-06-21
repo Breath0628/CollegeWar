@@ -16,7 +16,7 @@
 #include "def.h"
 
 #include "bullet.h"
-
+#include "client.h"
 Scene* menu_scene = nullptr;
 Scene* game_scene = nullptr;
 Scene* selector_scene = nullptr;
@@ -28,6 +28,7 @@ bool is_debug=0;//调试模式
 Player* player_1P=nullptr;//1p对象
 Player* player_2P=nullptr;//2p对象
 std::vector<Bullet*>bullet_list;//子弹对象 
+Client client("10.81.161.229","27015");
 
 int main() {
 	ExMessage msg;
@@ -37,7 +38,9 @@ int main() {
 	
 	settextstyle(28, 0, _T("IPix"));
 	setbkmode(TRANSPARENT);
-
+	//连接服务器
+	client.ConnectServer();
+	
 	BeginBatchDraw();
 
 	menu_scene = new MenuScene();
@@ -54,8 +57,23 @@ int main() {
 		DWORD frame_start_time = GetTickCount();
 
  		while (peekmessage(&msg, EX_KEY))
-		{ 
+		{
+			
+			static ExMessage last_msg=msg;
+			if (last_msg.message!=msg.message)
+			{
+				client.SendData((char*)&msg);//将消息事件发送给服务器
+				last_msg = msg;
+			}
+			
+		
+		}
+		//接收服务器数据
+		while (!client.DataQueue.empty())
+		{
+			memcpy(&msg, client.DataQueue.front(), 1024);
 			scene_manager->on_input(msg);
+			client.DataQueue.pop();
 		}
 
 		//每帧逻辑更新时间
@@ -81,5 +99,4 @@ int main() {
 	}
 	EndBatchDraw();
 	return 0;
-
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-
 #define WIN32_LEAN_AND_MEAN
 #include <queue>
 #include <windows.h>
@@ -10,13 +9,9 @@
 #include <stdio.h>
 #include <graphics.h>
 #include "client.h"
-
 #include <iostream>
 #include <thread>
-#include <queue>
-#include <mutex>
-#include <condition_variable>
-#include <chrono>
+
 // Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
 #pragma comment (lib, "Ws2_32.lib")
 #pragma comment (lib, "Mswsock.lib")
@@ -58,8 +53,7 @@ public:
             printf("getaddrinfo failed with error: %d\n", iResult);
             WSACleanup();
         }
-        StartDataQueue();
-        DataQueueThread.detach();
+       
     }
 
     ~Client() = default;
@@ -85,6 +79,8 @@ public:
             printf("Unable to connect to server!\n");
             WSACleanup();
         }
+        StartDataQueue();
+        DataQueueThread.detach();
         isOpen = 1;
         return iResult;
     }
@@ -146,16 +142,3 @@ private:
 
 };
 
-// 通用序列化函数模板，将结构体转化为字节流
-template <typename T>
-void StructToChar(T* data, char*& buffer) {
-
-    buffer = (char*)data;
-
-}
-
-// 通用反序列化函数模板，将字节流转化为结构体
-template <typename T>
-void CharToStruct(char* buffer, T* data) {
-    data = (T*)buffer;
-}
