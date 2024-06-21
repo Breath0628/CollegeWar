@@ -44,8 +44,6 @@ int main() {
 	game_scene = new GameScene();
 	selector_scene = new SelectorScene();
 	rank_scene = new RankScene();
-
-
 	scene_manager = new SceneManager();
 
 	scene_manager->set_current_scene(menu_scene);
@@ -63,20 +61,15 @@ int main() {
 		//每帧逻辑更新时间
 		static DWORD last_tick_time = GetTickCount();
 		DWORD current_tick_time = GetTickCount();
-
 		DWORD delta_tick = current_tick_time - last_tick_time;
-
-
 		if (delta_tick>17)
 		{
 			delta_tick = 16;//超过30毫秒按30毫秒计算
 		}
-
 		scene_manager->on_update(delta_tick); 
 		last_tick_time=current_tick_time;
 
 		cleardevice();
-
 		scene_manager->on_draw(main_camera);
 		FlushBatchDraw();
 
