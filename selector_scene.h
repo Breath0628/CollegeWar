@@ -12,10 +12,16 @@ extern Player* player_2P;//2p¶ÔÏó
 extern IMAGE img_VS;//vsÒÕÊõ×ÖÍ¼Æ¬
 extern IMAGE img_1P;//1pÎÄ±¾Í¼
 extern IMAGE img_2P;//2pÎÄ±¾Í¼
+extern IMAGE img_3P;//3pÎÄ±¾Í¼
+extern IMAGE img_4P;
+
 extern IMAGE img_1P_desc;//1p¼üÎ»ÃèÊöÍ¼
 extern IMAGE img_2P_desc;//2p¼üÎ»ÃèÊöÍ¼
 extern IMAGE img_gravestone_left;//³¯Ïò×óµÄÄ¹±®Í¼
 extern IMAGE img_gravestone_right;//Ä¹±®³¯ÓÒ
+extern IMAGE img_gravestone_3;    //34Íæ¼ÒÍ·Ïñ¿ò
+extern IMAGE img_gravestone_4;
+
 extern IMAGE img_selector_background;//Ñ¡½Ç½çÃæ±³¾°Í¼
 extern IMAGE img_selector_tip;//Ñ¡½Ç½çÃæÌáÊ¾ĞÅÏ¢ÎÄ±¾Í¼
 
@@ -24,21 +30,27 @@ extern IMAGE img_1P_selector_btn_idle_right;           // 1P ÏòÓÒÑ¡Ôñ°´Å¥Ä¬ÈÏ×´Ì
 extern IMAGE img_1P_selector_btn_down_left;            // 1P Ïò×óÑ¡Ôñ°´Å¥°´ÏÂ×´Ì¬Í¼Æ¬
 extern IMAGE img_1P_selector_btn_down_right;           // 1P ÏòÓÒÑ¡Ôñ°´Å¥°´ÏÂ×´Ì¬Í¼Æ¬
 
-extern IMAGE img_2P_selector_btn_idle_left;            // 2P Ïò×óÑ¡Ôñ°´Å¥Ä¬ÈÏ×´Ì¬Í¼Æ¬
+extern IMAGE img_2P_selector_btn_idle_left;            // 2P Ïò×óÑ¡Ôñ°´Å¥Ä¬ÈÏ×´Ì¬Í¼Æ¬                                                                                
 extern IMAGE img_2P_selector_btn_idle_right;           // 2P ÏòÓÒÑ¡Ôñ°´Å¥Ä¬ÈÏ×´Ì¬Í¼Æ¬
 extern IMAGE img_2P_selector_btn_down_left;            // 2P Ïò×óÑ¡Ôñ°´Å¥°´ÏÂ×´Ì¬Í¼Æ¬
 extern IMAGE img_2P_selector_btn_down_right;           // 2P ÏòÓÒÑ¡Ôñ°´Å¥°´ÏÂ×´Ì¬Í¼Æ¬
 
 extern IMAGE img_peashooter_selector_background_left;  // Ñ¡½Ç½çÃæ³¯Ïò×óµÄÍñ¶ºÉäÊÖ±³¾°Í¼Æ¬
 extern IMAGE img_peashooter_selector_background_right; // Ñ¡½Ç½çÃæ³¯ÏòÓÒµÄÍñ¶ºÉäÊÖ±³¾°Í¼Æ¬
+//extern IMAGE img_archi_static;
+//extern IMAGE img_archi_angery;
 
 extern IMAGE img_sunflower_selector_background_left;   // Ñ¡½Ç½çÃæ³¯Ïò×óµÄÁúÈÕ¿û±³¾°Í¼Æ¬
 extern IMAGE img_sunflower_selector_background_right;  // Ñ¡½Ç½çÃæ³¯ÏòÓÒµÄÁúÈÕ¿û±³¾°Í¼Æ¬
 
-extern Atlas atlas_peashooter_idle_left;               // Íñ¶ºÉäÊÖ³¯Ïò×óµÄÄ¬ÈÏ¶¯»­Í¼¼¯
-extern Atlas atlas_sunflower_idle_right;              
+
+extern Atlas atlas_peashooter_idle_left;               // Íñ¶ºÉäÊÖ³¯Ïò×óµÄÄ¬ÈÏ¶¯»­Í¼¼¯   
+extern Atlas atlas_sunflower_idle_right;
 extern Atlas atlas_peashooter_idle_right;
-extern Atlas atlas_sunflower_idle_left; 
+extern Atlas atlas_sunflower_idle_left;
+
+extern Atlas atlas_player3_idle;                       //34Íæ¼ÒÈËÎï»¹Ã»·ÅÉÏ
+extern Atlas atlas_player4_idle;
 
 class SelectorScene :public Scene
 {
@@ -48,49 +60,69 @@ public:
 private:
 	enum class PlayerType {
 		Peashooter = 0,
-		Sunflower, 
+		Sunflower,
 		Invalid
 	};
 
 
 private:
 	void on_enter() {
-	
+
 		//Îª½ÇÉ«¶¯»­ÉèÖÃÍ¼¼¯ºÍÖ¡¼ä¸ô
-	
+
 		animation_peashooter.set_atlas(&atlas_peashooter_idle_right);
 		animation_sunflower.set_atlas(&atlas_sunflower_idle_right);
+		animation_player3.set_atlas(&atlas_player3_idle);    //
+		animation_player4.set_atlas(&atlas_player4_idle);
 
 		animation_peashooter.set_interval(100);
 		animation_sunflower.set_interval(100);
+		animation_player3.set_interval(100);                //
+		animation_player4.set_interval(100);
 
 		//ÉèÖÃ¾²Ì¬ÔªËØÎ»ÖÃ ±¬Õ¨
-		static const int OFFSET_X=50;
-		pos_img_VS.x= (getwidth() - img_VS.getwidth())/2;
-		pos_img_VS.y = (getheight() - img_VS.getheight()) / 2;
+		static const int OFFSET_X = 50;
+		pos_img_VS.x = (getwidth() - img_VS.getwidth()) / 2;
+		pos_img_VS.y = (getheight() - img_VS.getheight()) / 2 - 15;
 		pos_img_tip.x = (getwidth() - img_selector_tip.getwidth()) / 2;
 		pos_img_tip.y = getheight() - 125;
-		pos_img_1P.x = (getwidth() / 2 - img_1P.getwidth()) / 2 - OFFSET_X;
-		pos_img_1P.y = 35;
-		pos_img_2P.x = getwidth() / 2 + (getwidth() / 2 - img_2P.getwidth()) / 2 + OFFSET_X;
+		pos_img_1P.x = (getwidth() / 2 - img_1P.getwidth()) / 2 - OFFSET_X + 125;
+		pos_img_1P.y = 15;
+		pos_img_2P.x = getwidth() / 2 + (getwidth() / 2 - img_2P.getwidth()) / 2 + OFFSET_X - 125;
 		pos_img_2P.y = pos_img_1P.y;
+		pos_img_3P.x = pos_img_1P.x;
+		pos_img_3P.y = 300;
+		pos_img_4P.x = pos_img_2P.x;
+		pos_img_4P.y = pos_img_3P.y;
+
 		pos_img_1P_desc.x = (getwidth() / 2 - img_1P_desc.getwidth()) / 2 - OFFSET_X;
-		pos_img_1P_desc.y = getheight() - 150;
-		pos_img_2P_desc.x= getwidth() / 2 + (getwidth() / 2 - img_2P_desc.getwidth()) / 2 + OFFSET_X;
+		pos_img_1P_desc.y = getheight() - 120;
+		pos_img_2P_desc.x = getwidth() / 2 + (getwidth() / 2 - img_2P_desc.getwidth()) / 2 + OFFSET_X;
 		pos_img_2P_desc.y = pos_img_1P_desc.y;
-		pos_img_1P_gravestone.x = (getwidth() / 2 - img_gravestone_right.getwidth()) / 2 - OFFSET_X;
-		pos_img_1P_gravestone.y = pos_img_1P.y + img_1P.getheight() + 35;
-		pos_img_2P_gravestone.x = getwidth() / 2 + (getwidth()/ 2 - img_gravestone_left.getwidth()) / 2 + OFFSET_X;
+
+		pos_img_1P_gravestone.x = pos_img_1P.x - 30;
+		pos_img_1P_gravestone.y = pos_img_1P.y + img_1P.getheight() - 25;
+		pos_img_2P_gravestone.x = pos_img_2P.x - 30;
 		pos_img_2P_gravestone.y = pos_img_1P_gravestone.y;
-		pos_animation_1P.x= (getwidth() / 2 - atlas_peashooter_idle_right.get_image(0)->getwidth())/ 2 - OFFSET_X;
-		pos_animation_1P.y = pos_img_1P_gravestone.y + 80;
-		pos_animation_2P.x = getwidth() / 2 + (getwidth() / 2 - atlas_peashooter_idle_right.get_image(0)->getwidth()) / 2 + OFFSET_X;
+		pos_img_3P_gravestone.x = pos_img_1P_gravestone.x;
+		pos_img_3P_gravestone.y = pos_img_3P.y + img_3P.getheight() - 25;
+		pos_img_4P_gravestone.x = pos_img_2P_gravestone.x;
+		pos_img_4P_gravestone.y = pos_img_3P_gravestone.y;
+
+		pos_animation_1P.x = pos_img_1P_gravestone.x + (pos_img_1P_gravestone.x - atlas_peashooter_idle_right.get_image(0)->getwidth()) / 2 - OFFSET_X - 22;
+		pos_animation_1P.y = pos_img_1P_gravestone.y + 50;
+		pos_animation_2P.x = pos_img_2P_gravestone.x + 50;
 		pos_animation_2P.y = pos_animation_1P.y;
-		pos_img_1P_name.y = pos_animation_1P.y + 155;
+		pos_animation_3P.x = pos_animation_1P.x;
+		pos_animation_3P.y = pos_img_3P_gravestone.y + 50;
+		pos_animation_4P.x = pos_animation_2P.x;
+		pos_animation_4P.y = pos_animation_3P.y;
+
+		pos_img_1P_name.y = pos_animation_1P.y + 135;
 		pos_img_2P_name.y = pos_img_1P_name.y;
 		pos_1P_selector_btn_left.x = pos_img_1P_gravestone.x - img_1P_selector_btn_idle_left.getwidth();
-		pos_1P_selector_btn_left.y = pos_img_1P_gravestone.y + (img_gravestone_right.getheight() - img_1P_selector_btn_idle_left.getheight())/ 2;
-		pos_1P_selector_btn_right.x= pos_img_1P_gravestone.x + img_gravestone_right.getwidth();
+		pos_1P_selector_btn_left.y = pos_img_1P_gravestone.y + (img_gravestone_right.getheight() - img_1P_selector_btn_idle_left.getheight()) / 2;
+		pos_1P_selector_btn_right.x = pos_img_1P_gravestone.x + img_gravestone_right.getwidth();
 		pos_1P_selector_btn_right.y = pos_1P_selector_btn_left.y;
 		pos_2P_selector_btn_left.x = pos_img_2P_gravestone.x - img_2P_selector_btn_idle_left.getwidth();
 		pos_2P_selector_btn_left.y = pos_1P_selector_btn_left.y;
@@ -100,20 +132,22 @@ private:
 
 		//input_timer.set_one_shot(1);
 		//input_timer.set_wait_time(500);
-		
+
 	}
 	void on_update(int delta) {
 		//½ÇÉ«¶¯»­¸üĞÂ
 		animation_peashooter.on_update(delta);
 		animation_sunflower.on_update(delta);
+		animation_player3.on_update(delta);
+		animation_player4.on_update(delta);
 
-		scorll_line_x += 5;//»ù×¼Ïß¸üĞÂ
-		if (scorll_line_x >= img_peashooter_selector_background_left.getwidth()) scorll_line_x=0;
-			
+		scorll_line_x += 5; //»ù×¼Ïß¸üĞÂ
+		if (scorll_line_x >= img_peashooter_selector_background_left.getwidth()) scorll_line_x = 0;
+
 	}
-	void on_draw(const Camera &camera) {
-		
-		putimage(0, 0, &img_selector_background);
+	void on_draw(const Camera& camera) {
+
+		putimage(0, 0, &img_selector_background);      ////
 		//äÖÈ¾±³¾°¶¯Ì¬Í¼
 
 		IMAGE* p1_scorll_bk = nullptr;
@@ -156,26 +190,31 @@ private:
 		puimage_alpha(getwidth() - scorll_line_x, 0, p2_scorll_bk);
 
 		//äÖÈ¾¾²Ì¬ËØ²Ä
-	
-		puimage_alpha(pos_img_VS.x,pos_img_VS.y,&img_VS);
+
+		puimage_alpha(pos_img_VS.x, pos_img_VS.y, &img_VS);
 
 		puimage_alpha(pos_img_1P.x, pos_img_1P.y, &img_1P);
 		puimage_alpha(pos_img_2P.x, pos_img_2P.y, &img_2P);
+		puimage_alpha(pos_img_3P.x, pos_img_3P.y, &img_3P);
+		puimage_alpha(pos_img_4P.x, pos_img_4P.y, &img_4P);
 
 		puimage_alpha(pos_img_1P_desc.x, pos_img_1P_desc.y, &img_1P_desc);
 		puimage_alpha(pos_img_2P_desc.x, pos_img_2P_desc.y, &img_2P_desc);
 
 		puimage_alpha(pos_img_1P_gravestone.x, pos_img_1P_gravestone.y, &img_gravestone_right);
 		puimage_alpha(pos_img_2P_gravestone.x, pos_img_2P_gravestone.y, &img_gravestone_left);
+		puimage_alpha(pos_img_3P_gravestone.x, pos_img_3P_gravestone.y, &img_gravestone_3);
+		puimage_alpha(pos_img_4P_gravestone.x, pos_img_4P_gravestone.y, &img_gravestone_4);
 
 		puimage_alpha(pos_img_tip.x, pos_img_tip.y, &img_selector_tip);
-		
+
 
 
 		//äÖÈ¾1p 2p½ÇÉ«¶¯»­
 		animation_peashooter.on_draw(camera, pos_animation_1P.x, pos_animation_1P.y);
-
 		animation_sunflower.on_draw(camera, pos_animation_2P.x, pos_animation_2P.y);
+		animation_player3.on_draw(camera, pos_animation_3P.x, pos_animation_3P.y);
+		animation_player4.on_draw(camera, pos_animation_4P.x, pos_animation_4P.y);
 
 		//äÖÈ¾Ãû×Ö
 		switch (player_type_1)
@@ -205,10 +244,10 @@ private:
 
 
 	}
-	void on_input(const ExMessage& msg) {
+	void on_input(const ExMessage& msg) {            //¼ÓÉÏÅÉÉúµÄĞÂ½ÇÉ«ÀàºóĞŞ¸Ä
 		//½ÇÉ«Ñ¡È¡ ³¡¾°Ìø×ª
 		if (msg.message != WM_KEYUP) return;
-		
+
 		switch (msg.vkcode)
 		{
 		case 39://->
@@ -277,7 +316,7 @@ private:
 		}
 
 	};
-	void exit() { 
+	void exit() {
 		//¸ù¾İÑ¡½ÇÀàĞÍ¸³ÖµÍæ¼Ò¶ÔÏó
 		switch (player_type_1)
 		{
@@ -289,7 +328,7 @@ private:
 			player_1P = new SunflowerPlayer();
 			player_1P->id = PlayerID::P1;
 			break;
-	
+
 		}
 		switch (player_type_2)
 		{
@@ -310,35 +349,46 @@ private:
 	POINT pos_img_tip = { 0 };// ÌáÊ¾ĞÅÏ¢ÎÄ±¾Í¼Æ¬Î»ÖÃ
 	POINT pos_img_1P = { 0 };// 1P ÎÄ±¾Í¼Æ¬Î»ÖÃ
 	POINT pos_img_2P = { 0 };// 2PÎÄ±¾Í¼Æ¬Î»ÖÃ
+	POINT pos_img_3P = { 0 };// 3PÎÄ±¾Í¼Æ¬Î»ÖÃ
+	POINT pos_img_4P = { 0 };
+
 	POINT pos_img_1P_desc = { 0 };//1P¼üÎ»ÃèÊöÍ¼Æ¬Î»ÖÃ
 	POINT pos_img_2P_desc = { 0 };// 2P¼üÎ»ÃèÊöÍ¼Æ¬Î»ÖÃ
 	POINT pos_img_1P_name = { 0 };//1P½ÇÉ«ĞÕÃûÎÄ±¾Î»ÖÃ
 	POINT pos_img_2P_name = { 0 };//2P½ÇÉ«ĞÕÃûÎÄ±¾Î»ÖÃ
 	POINT pos_animation_1P = { 0 };//1P½ÇÉ«¶¯»­Î»ÖÃ
 	POINT pos_animation_2P = { 0 };// 2P½ÇÉ«¶¯»­Î»ÖÃ
+	POINT pos_animation_3P = { 0 };
+	POINT pos_animation_4P = { 0 };
+
 	POINT pos_img_1P_gravestone = { 0 };// 1PÄ¹±®Í¼Æ¬Î»ÖÃ
 	POINT pos_img_2P_gravestone = { 0 };//2PÄ¹±®Í¼Æ¬Î»ÖÃ
+	POINT pos_img_3P_gravestone = { 0 };
+	POINT pos_img_4P_gravestone = { 0 };
+
 	POINT pos_1P_selector_btn_left = { 0 };//1PÏò×óÇĞ»»°´Å¥Î»ÖÃ
 	POINT pos_1P_selector_btn_right = { 0 };// 1PÏòÓÒÇĞ»»°´Å¥Î»ÖÃ
 	POINT pos_2P_selector_btn_left = { 0 };//2PÏò×óÇĞ»»°´Å¥Î»ÖÃ
 	POINT pos_2P_selector_btn_right = { 0 };//2P ÏòÓÒÇĞ»»°´Å¥Î»ÖÃ
-	
+
 	Animation animation_peashooter; //Íã¶¹¶¯»­ -->1p¶¯»­
 	Animation animation_sunflower;//ÏòÈÕ¿û¶¯»­-->2p¶¯»­
+	Animation animation_player3;
+	Animation animation_player4;
 
 
 	PlayerType player_type_1 = PlayerType::Peashooter;//1p 2p½ÇÉ«ÀàĞÍ
 	PlayerType player_type_2 = PlayerType::Sunflower;
 
-	LPCTSTR str_peashooter_name = _T("Íã¶¹ÉäÊÖ");
-	LPCTSTR str_sunflower_name = _T("ÏòÈÕ¿û");
+	LPCTSTR str_peashooter_name = _T("½¨ÖşÑ§Ôº");      //ÕâÀïÏÈÓÃ³õÊ¼Ãû×Ö´úÌæ ÈËÎï²¹È«ºó¸Ä
+	LPCTSTR str_sunflower_name = _T("ĞÅÏ¢Ñ§Ôº");
 
-	int scorll_line_x= 0; //±³¾°°å¹ö¶¯Ïß
+	int scorll_line_x = 0; //±³¾°°å¹ö¶¯Ïß
 
-	
+
 
 private:
-	void outtexy_shaded(int x,int y ,LPCTSTR str) {
+	void outtexy_shaded(int x, int y, LPCTSTR str) {
 		settextcolor(RGB(45, 45, 45));
 		outtextxy(x + 3, y + 3, str);
 		settextcolor(RGB(255, 255, 255));

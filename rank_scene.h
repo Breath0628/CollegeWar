@@ -67,7 +67,7 @@ public:
 
 		if (msg.vkcode == 32&&msg.message==WM_KEYUP) {
 			mciSendString(_T("play ui_confirm from 0"), NULL, 0, NULL);
-			scene_manager->switch_to(SceneManager::SceneType::Selector);
+			scene_manager->switch_to(SceneManager::SceneType::Menu);
 		}
 	};
 	void on_exit() {

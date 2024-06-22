@@ -93,7 +93,16 @@ public:
 	}
 	void on_input(const ExMessage& msg) {
 
-	
+
+		switch (msg.vkcode)
+		{
+		case 32:
+			if (msg.message == WM_KEYUP)
+			{
+				mciSendString(_T("play ui_confirm from 0"), NULL, 0, NULL);
+				scene_manager->switch_to(SceneManager::SceneType::Selector);
+			}
+		}
 	};
 	void on_exit() {
 	}

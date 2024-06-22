@@ -20,10 +20,16 @@ IMAGE img_menu_background;//主菜单背景
 IMAGE img_VS;//vs艺术字图片
 IMAGE img_1P;//1p文本图
 IMAGE img_2P;//2p文本图
+IMAGE img_3P;
+IMAGE img_4P;
+
 IMAGE img_1P_desc;//1p键位描述图
 IMAGE img_2P_desc;//2p键位描述图
 IMAGE img_gravestone_left;//朝向左的墓碑图
 IMAGE img_gravestone_right;//墓碑朝右
+IMAGE img_gravestone_3;
+IMAGE img_gravestone_4;
+
 IMAGE img_selector_background;//选角界面背景图
 IMAGE img_selector_tip;//选角界面提示信息文本图
 
@@ -71,6 +77,9 @@ Atlas atlas_sunflower_attack_ex_right;            // 龙日葵朝向右的攻击动画图集
 Atlas atlas_sunflower_die_left;                 // 龙日葵朝向左的死亡动画图集
 Atlas atlas_sunflower_die_right;                // 龙日葵朝向右的死亡动画图集
 
+Atlas atlas_player3_idle;
+Atlas atlas_player4_idle;
+
 IMAGE img_pea;                                  // 豌豆图片
 
 Atlas atlas_pea_break;                          // 豌豆破碎动画图集
@@ -90,9 +99,11 @@ IMAGE img_winner_bar;                           // 获胜玩家背景文本图片
 
 IMAGE img_avatar_peashooter;                    // 婉逗射手头像图片
 IMAGE img_avatar_sunflower;                     // 龙日葵头像图片
+IMAGE img_player3;
+IMAGE img_player4;
 
 void load_game_resources() {
-	//恐怖如斯的全体资源加载 爆炸 
+    //恐怖如斯的全体资源加载 爆炸 
 
 
     //对于存在左右方向的image图片和atlas图集，本地资源只存在方向向右的图片和图集资源
@@ -103,10 +114,16 @@ void load_game_resources() {
     loadimage(&img_VS, _T("resources/VS.png"));
     loadimage(&img_1P, _T("resources/1P.png"));
     loadimage(&img_2P, _T("resources/2P.png"));
+    loadimage(&img_3P, _T("resources/3P.png"));
+    loadimage(&img_4P, _T("resources/4P.png"));
+
     loadimage(&img_1P_desc, _T("resources/1P_desc.png"));
     loadimage(&img_2P_desc, _T("resources/2P_desc.png"));
+
     loadimage(&img_gravestone_right, _T("resources/gravestone.png"));
     flip_image(&img_gravestone_right, &img_gravestone_left);
+    loadimage(&img_gravestone_4, _T("resources/gravestone.png"));
+    flip_image(&img_gravestone_4, &img_gravestone_3);
     loadimage(&img_selector_tip, _T("resources/selector_tip.png"));
     loadimage(&img_selector_background, _T("resources/selector_background.png"));
 
@@ -139,26 +156,31 @@ void load_game_resources() {
 
     loadimage(&img_avatar_peashooter, _T("resources/avatar_peashooter.png"));
     loadimage(&img_avatar_sunflower, _T("resources/avatar_sunflower.png"));
+    loadimage(&img_player3, _T("resources/player3"));
+    loadimage(&img_player4, _T("resources/player4"));
 
-    loadimage(&img_pea, _T("resources/pea.png"));
+    loadimage(&img_pea, _T("resources/tower.png")); //////////////////
 
-    atlas_peashooter_idle_right.load_from_file(_T("resources/peashooter_idle_%d.png"), 9);
+    atlas_peashooter_idle_right.load_from_file(_T("resources/archi_static_%d.png"), 2); //////////////////////
     flip_atlas(atlas_peashooter_idle_right, atlas_peashooter_idle_left);
-    atlas_peashooter_run_right.load_from_file(_T("resources/peashooter_run_%d.png"), 5);
+    atlas_peashooter_run_right.load_from_file(_T("resources/archi_static_%d.png"), 2); //////////////////////
     flip_atlas(atlas_peashooter_run_right, atlas_peashooter_run_left);
-    atlas_peashooter_attack_ex_right.load_from_file(_T("resources/peashooter_attack_ex_%d.png"), 3);
+    atlas_peashooter_attack_ex_right.load_from_file(_T("resources/archi_angery_%d.png"), 2);  ////////////////////
     flip_atlas(atlas_peashooter_attack_ex_right, atlas_peashooter_attack_ex_left);
-    atlas_peashooter_die_right.load_from_file(_T("resources/peashooter_die_%d.png"),4);
+    atlas_peashooter_die_right.load_from_file(_T("resources/peashooter_die_%d.png"), 4);
     flip_atlas(atlas_peashooter_die_right, atlas_peashooter_die_left);
 
-    atlas_sunflower_idle_right.load_from_file(_T("resources/sunflower_idle_%d.png"), 8);
+    atlas_sunflower_idle_right.load_from_file(_T("resources/comp_static_%d.png"), 2);
     flip_atlas(atlas_sunflower_idle_right, atlas_sunflower_idle_left);
-    atlas_sunflower_run_right.load_from_file(_T("resources/sunflower_run_%d.png"), 5);
+    atlas_sunflower_run_right.load_from_file(_T("resources/comp_angery_%d.png"), 2);
     flip_atlas(atlas_sunflower_run_right, atlas_sunflower_run_left);
     atlas_sunflower_attack_ex_right.load_from_file(_T("resources/sunflower_attack_ex_%d.png"), 9);
     flip_atlas(atlas_sunflower_attack_ex_right, atlas_sunflower_attack_ex_left);
     atlas_sunflower_die_right.load_from_file(_T("resources/sunflower_die_%d.png"), 2);
     flip_atlas(atlas_sunflower_die_right, atlas_sunflower_die_left);
+
+    atlas_player3_idle.load_from_file(_T("resources/player3_%d.png"), 2);
+    atlas_player4_idle.load_from_file(_T("resources/player4_%d.png"), 2);
 
     atlas_pea_break.load_from_file(_T("resources/pea_break_%d.png"), 3);
     atlas_sun.load_from_file(_T("resources/sun_%d.png"), 5);
@@ -172,7 +194,7 @@ void load_game_resources() {
     atlas_land_effect.load_from_file(_T("resources/land_effect_%d.png"), 2);
 
 
-     // 加载MP3文件
+    // 加载MP3文件
     mciSendString(_T("open resources/bgm_game.mp3 alias bgm_game"), NULL, 0, NULL);
     mciSendString(_T("open resources/bgm_menu.mp3 alias bgm_menu"), NULL, 0, NULL);
     mciSendString(_T("open resources/pea_break_1.mp3 alias pea_break_1"), NULL, 0, NULL);
