@@ -137,6 +137,7 @@
     <ClInclude Include="def.h" />
     <ClInclude Include="game_scene.h" />
     <ClInclude Include="menu_scene.h" />
+    <ClInclude Include="Identity.h" />
     <ClInclude Include="peashooter_player.h" />
     <ClInclude Include="pea_bullet.h" />
     <ClInclude Include="platform.h" />
@@ -152,6 +153,7 @@
     <ClInclude Include="timer.h" />
     <ClInclude Include="utli.h" />
     <ClInclude Include="vector2.h" />
+    <ClInclude Include="wait_scene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

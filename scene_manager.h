@@ -6,6 +6,7 @@ extern Scene* menu_scene;
 extern Scene* game_scene;
 extern Scene* selector_scene;
 extern Scene* rank_scene;
+extern Scene* wait_scene;
 
 class SceneManager {
 
@@ -14,6 +15,7 @@ public:
 	{
 		Menu,
 		Game,
+		WAIT,
 		Selector,
 		Rank
 	};
@@ -41,6 +43,9 @@ public:
 			break;
 		case SceneManager::SceneType::Rank:
 			current_scene = rank_scene;
+			break;
+		case SceneManager::SceneType::WAIT:
+			current_scene = wait_scene;
 			break;
 		default:
 			break;

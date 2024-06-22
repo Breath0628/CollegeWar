@@ -34,7 +34,9 @@ private:
     bool isOpen = 0;
 public:
     queue<char*> DataQueue;
+    queue<char*> SendQueue;
     thread DataQueueThread;
+    thread sendQueueThread;
 public:
     Client(const char* ServerIp, const char* ServerPort)
     {  // 初始化winsocket
@@ -81,24 +83,39 @@ public:
         }
         StartDataQueue();
         DataQueueThread.detach();
+        StartSendData();
+        sendQueueThread.detach();
         isOpen = 1;
         return iResult;
     }
 
-    int SendData(const char* sendbuf) {
-        //发送字符串数据 成功返回0 失败返回-1
-        for (size_t i = 0; i < 3; i++)
-        {
-            //最大重发三次
-            iResult = send(ConnectSocket, sendbuf, 1024, 0);
-            if (iResult == SOCKET_ERROR) {
-                printf("send failed with error: %d\n", WSAGetLastError());
-                WSACleanup();
-                continue;
+    void StartSendData() {
+
+        sendQueueThread = thread([&]() {
+            while (1)
+            {
+                while (!SendQueue.empty()) {
+                    
+                    
+                    //发送字符串数据 成功返回0 失败返回-1
+                    for (size_t i = 0; i < 10; i++)
+                    {
+                        //最大重发三次
+                        iResult = send(ConnectSocket, SendQueue.front(), 1024, 0);
+                        if (iResult == SOCKET_ERROR) {
+                            printf("send failed with error: %d\n", WSAGetLastError());
+                            WSACleanup();
+                            continue;
+                        }
+                        break;
+                    }
+                    SendQueue.pop();
+                
+                }
             }
-            break;
-        }
-        return iResult;
+            
+            });
+       
 
     }
     int ReceveData(char* recvbuf) {
@@ -125,7 +142,7 @@ public:
                 if (iResult > 0)
                 {
                     DataQueue.push(recvbuf);
-                    printf("数据队列获取到数据!\n");
+                   // printf("数据队列获取到数据!\n");
                 }
             }
             }

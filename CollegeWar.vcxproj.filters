@@ -90,6 +90,15 @@
     <ClInclude Include="rank_scene.h">
       <Filter>头文件\场景</Filter>
     </ClInclude>
+    <ClInclude Include="client.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Identity.h">
+      <Filter>头文件\框架</Filter>
+    </ClInclude>
+    <ClInclude Include="wait_scene.h">
+      <Filter>头文件\场景</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
