@@ -85,7 +85,11 @@ public:
 				mciSendString(_T("play ui_confirm from 0"), NULL, 0, NULL);
 
 				if (handPos.y <= textHead.y - 10)scene_manager->switch_to(SceneManager::SceneType::Rank);
-				else if (handPos.y <= textHead.y - 10 + 90)scene_manager->switch_to(SceneManager::SceneType::WAIT);
+				else if (handPos.y <= textHead.y - 10 + 90)
+				{
+					scene_manager->switch_to(SceneManager::SceneType::WAIT);
+				
+				}
 				else if (handPos.y <= textHead.y - 10 + 180)scene_manager->switch_to(SceneManager::SceneType::Rank);
 				else if (handPos.y <= textHead.y - 10 + 270)scene_manager->switch_to(SceneManager::SceneType::Rank);
 				else if (handPos.y <= textHead.y - 10 + 360)Running = 0;

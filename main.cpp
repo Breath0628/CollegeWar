@@ -16,7 +16,7 @@
 #include "def.h"
 
 #include "bullet.h"
-#include "client.h"
+
 #include "Identity.h"
 
 Scene* menu_scene = nullptr;
@@ -32,8 +32,8 @@ Player* player_1P=nullptr;//1p对象
 Player* player_2P=nullptr;//2p对象
 std::vector<Bullet*>bullet_list;//子弹对象 
 ExMessage lastMsg;
-Client client("10.81.161.229","27015");
 bool Running = 1;
+IDWaitRoom NowUserId;//用户在房间中的id
 
 
 int main() {
@@ -46,8 +46,7 @@ int main() {
 	
 	settextstyle(28, 0, _T("IPix"));
 	setbkmode(TRANSPARENT);
-	//连接服务器
-	client.ConnectServer();
+
 	
 	BeginBatchDraw();
 
@@ -65,40 +64,10 @@ int main() {
 	{
 		DWORD frame_start_time = GetTickCount();
 
- 		while (peekmessage(&msg, EX_KEY))
+		while (peekmessage(&msg, EX_KEY))
 		{
-			
-			if (sendCount!=0&&lastMsg.message==msg.message&&lastMsg.vkcode==msg.vkcode)
-			{
-				continue;
-			}
-			client.SendQueue.push((char*)&msg);//将消息事件发送给服务器
-			lastMsg = msg;
-			sendCount++;
-			cout << "数据总发送" << sendCount << endl;
-			
-			
-		}
-		//接收服务器数据
-		while (!client.DataQueue.empty())
-		{
-			
-			memcpy(&msg, client.DataQueue.front(), 1024);
-			
 			scene_manager->on_input(msg);
-			client.DataQueue.pop();
-			recvCount++;
-			cout << "数据总接收" << recvCount << endl;
-			if (msg.message==WM_KEYUP)
-			{
-				cout << msg.vkcode << ":" << "UP" << endl;
-			}
-			else
-			{
-				cout << msg.vkcode << ":" << "DOWN" << endl;
-			}
 		}
-
 		//每帧逻辑更新时间
 		static DWORD last_tick_time = GetTickCount();
 		DWORD current_tick_time = GetTickCount();
@@ -109,7 +78,7 @@ int main() {
 		}
 		scene_manager->on_update(delta_tick); 
 		last_tick_time=current_tick_time;
-
+		
 		cleardevice();
 		scene_manager->on_draw(main_camera);
 		FlushBatchDraw();

@@ -133,7 +133,6 @@
     <ClInclude Include="atlas.h" />
     <ClInclude Include="bullet.h" />
     <ClInclude Include="camera.h" />
-    <ClInclude Include="client.h" />
     <ClInclude Include="def.h" />
     <ClInclude Include="game_scene.h" />
     <ClInclude Include="menu_scene.h" />
