@@ -21,12 +21,16 @@ public:
 		timer_attack.set_callback([&]() {
 			can_attck = 1;
 			});
-	
+		
 	};
 	~Player();
 	
 	virtual void on_update(int delta) {
-
+		if (hp<=0)
+		{
+			die();
+		}
+		dieTimer.on_update(delta);
 		int direction = is_right_key_down - is_left_key_down;//玩家是否移动
 		
 		if (direction != 0) {
@@ -44,9 +48,35 @@ public:
 		timer_attack.on_update(delta);
 		move_collide(delta);
 		current_animation->on_update(delta);
+		
 	}
-	virtual void on_draw(const Camera& camera) {
+	virtual void on_draw(const Camera& camera) 
+	{
 		current_animation->on_draw(camera,(int)(pos.x), (int)(pos.y));//渲染当前动画
+		TCHAR text[256];
+		//显示蓝条和血量
+		settextstyle(24, 0, _T("IPix"), 0, 0, 700, 0, 0, 0);
+		setbkmode(TRANSPARENT);
+		switch (id)
+		{
+		case PlayerID::P1:
+			settextcolor(RED);
+			_stprintf_s(text, L"血量:%d", hp);
+			outtextxy(80, 600, text);
+			settextcolor(BLUE);
+			_stprintf_s(text, L"蓝量:%d", mp);
+			outtextxy(80, 650, text);
+			break;
+		case PlayerID::P2:
+			settextcolor(RED);
+			_stprintf_s(text, L"血量:%d", hp);
+			outtextxy(1000, 600, text);
+			settextcolor(BLUE);
+			_stprintf_s(text, L"蓝量:%d", mp);
+			outtextxy(1000, 650, text);
+			break;
+		}
+		
 	}
 
 	virtual void on_input(const ExMessage &msg) {
@@ -189,7 +219,16 @@ public:
 	};
 	virtual void on_attack_ex(//特色攻击
 	) {};
-	
+	virtual void die(){
+	//	current_animation = &animation_die;//切换为死亡动画
+		//死亡后返回主菜单定时器
+		dieTimer.set_callback([&]() {
+			scene_manager->switch_to(SceneManager::SceneType::Menu);
+			});
+		dieTimer.set_one_shot(1);
+		dieTimer.set_wait_time(1000);
+
+	}//死亡
 
 public:
 	PlayerID id; //玩家id
@@ -220,7 +259,8 @@ public:
 	Animation animation_run_right;
 	Animation animation_attack_ex_left;//朝左特殊攻击动画
 	Animation animation_attack_ex_right;
-
+	Animation animation_die;//死亡动画
+	Timer dieTimer;//角色死亡后返回主菜单倒计时
 };
 
 

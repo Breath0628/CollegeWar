@@ -12,8 +12,8 @@ extern Atlas atlas_sunflower_run_right;                // 龙日葵朝向右的跑步动画
 extern Atlas atlas_sunflower_attack_ex_left;             // 龙日葵朝向左的攻击动画图集
 extern Atlas atlas_sunflower_attack_ex_right;            // 龙日葵朝向右的攻击动画图集
 extern Atlas atlas_sun_text;                           // “日” 文本动画图集
-extern Player* player_1P;
-extern Player* player_2P;
+extern Player* player_1P;//1p对象
+extern Player* player_2P;//2p对象
 
 class SunflowerPlayer : public Player
 {

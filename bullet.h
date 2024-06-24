@@ -4,7 +4,7 @@
 #include <functional>
 #include "player_id.h"
 #include "camera.h"
-
+#include "player.h"
 
 
 class Bullet
@@ -18,6 +18,7 @@ public:
 		this->callback = callback;
 	}
 	virtual void on_collide() {
+	
 		//Åö×²Ö´ÐÐ»Øµ÷
 		if (callback)callback();
 	}
@@ -31,7 +32,7 @@ public:
 
 	}		
 	virtual void on_update(int delta) {
-
+		
 	}
 	virtual void on_draw(const Camera& camera) const{
 
