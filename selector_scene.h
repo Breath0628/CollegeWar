@@ -2,9 +2,10 @@
 #include "scene.h"
 #include "scene_manager.h"
 #include "animation.h"
-#include "peashooter_player.h"
-#include "sunflower_player.h"
-
+#include "archi_player.h"
+#include "computer_player.h"
+#include "math_player.h"
+#include "eam_player.h"
 extern SceneManager* scene_manager; //³¡¾°¹ÜÀíÆ÷
 extern Player* player_1P;//1p¶ÔÏó
 extern Player* player_2P;//2p¶ÔÏó
@@ -17,8 +18,8 @@ extern IMAGE img_4P;
 
 extern IMAGE img_1P_desc;//1p¼üÎ»ÃèÊöÍ¼
 extern IMAGE img_2P_desc;//2p¼üÎ»ÃèÊöÍ¼
-extern IMAGE img_gravestone_left;//³¯Ïò×óµÄÄ¹±®Í¼
-extern IMAGE img_gravestone_right;//Ä¹±®³¯ÓÒ
+extern IMAGE img_gravestone_left;//³¯Ïò×óµÄ¿ò¼ÜÍ¼
+extern IMAGE img_gravestone_right;//³¯ÓÒ
 extern IMAGE img_gravestone_3;    //34Íæ¼ÒÍ·Ïñ¿ò
 extern IMAGE img_gravestone_4;
 
@@ -35,22 +36,35 @@ extern IMAGE img_2P_selector_btn_idle_right;           // 2P ÏòÓÒÑ¡Ôñ°´Å¥Ä¬ÈÏ×´Ì
 extern IMAGE img_2P_selector_btn_down_left;            // 2P Ïò×óÑ¡Ôñ°´Å¥°´ÏÂ×´Ì¬Í¼Æ¬
 extern IMAGE img_2P_selector_btn_down_right;           // 2P ÏòÓÒÑ¡Ôñ°´Å¥°´ÏÂ×´Ì¬Í¼Æ¬
 
-extern IMAGE img_peashooter_selector_background_left;  // Ñ¡½Ç½çÃæ³¯Ïò×óµÄÍñ¶ºÉäÊÖ±³¾°Í¼Æ¬
-extern IMAGE img_peashooter_selector_background_right; // Ñ¡½Ç½çÃæ³¯ÏòÓÒµÄÍñ¶ºÉäÊÖ±³¾°Í¼Æ¬
-//extern IMAGE img_archi_static;
-//extern IMAGE img_archi_angery;
+extern IMAGE img_peashooter_selector_background_left;  // Ñ¡½Ç½çÃæ³¯Ïò×óµÄ±³¾°Í¼Æ¬
+extern IMAGE img_peashooter_selector_background_right; // Ñ¡½Ç½çÃæ³¯ÏòÓÒµÄ±³¾°Í¼Æ¬
+extern IMAGE img_sunflower_selector_background_left;   // Ñ¡½Ç½çÃæ³¯Ïò×óµÄ±³¾°Í¼Æ¬
+extern IMAGE img_sunflower_selector_background_right;  // Ñ¡½Ç½çÃæ³¯ÏòÓÒµÄÁú±³¾°Í¼Æ¬
 
-extern IMAGE img_sunflower_selector_background_left;   // Ñ¡½Ç½çÃæ³¯Ïò×óµÄÁúÈÕ¿û±³¾°Í¼Æ¬
-extern IMAGE img_sunflower_selector_background_right;  // Ñ¡½Ç½çÃæ³¯ÏòÓÒµÄÁúÈÕ¿û±³¾°Í¼Æ¬
+//½¨ÖşÑ§Ôº
+extern Atlas atlas_archi_idle_left;               // ÀíÑ§Ôº³¯Ïò×óµÄÄ¬ÈÏ¶¯»­Í¼¼¯   
+extern Atlas atlas_archi_idle_right;
 
-
-extern Atlas atlas_peashooter_idle_left;               // Íñ¶ºÉäÊÖ³¯Ïò×óµÄÄ¬ÈÏ¶¯»­Í¼¼¯   
-extern Atlas atlas_sunflower_idle_right;
-extern Atlas atlas_peashooter_idle_right;
-extern Atlas atlas_sunflower_idle_left;
+//¼ÆËã»ú½ÇÉ«
+extern Atlas atlas_computer_idle_left;               // Ïò×óµÄÄ¬ÈÏ¶¯»­Í¼¼¯
+extern Atlas atlas_computer_idle_right;              // ÏòÓÒµÄÄ¬ÈÏ¶¯»­Í¼¼¯
 
 extern Atlas atlas_player3_idle;                       //34Íæ¼ÒÈËÎï»¹Ã»·ÅÉÏ
 extern Atlas atlas_player4_idle;
+//ÀíÑ§Ôº
+extern Atlas atlas_math_idle_left;               // ÀíÑ§Ôº³¯Ïò×óµÄÄ¬ÈÏ¶¯»­Í¼¼¯   
+extern Atlas atlas_math_idle_right;
+
+//¾­¹Ü
+extern Atlas EAM_idle_left;
+extern Atlas EAM_idle_right;
+
+
+//Ñ¡½Ç³¡¾°Éí·İ×ÊÔ´
+extern Atlas atlas_angel;
+extern Atlas atlas_demon;
+
+extern int identity_1p, identity_2p; //1P2PµÄÉí·İ
 
 class SelectorScene :public Scene
 {
@@ -59,24 +73,28 @@ public:
 	~SelectorScene() = default;
 private:
 	enum class PlayerType {
-		Peashooter = 0,
-		Sunflower,
-		Invalid
+		Computer,
+		Math,
+		Eam,
+		Archi
 	};
 
 
 private:
 	void on_enter() {
+		//ÉèÖÃ³õÊ¼Ãû×Ö
+		_stprintf_s(str_P1_name, L"ĞÅÏ¢Ñ§Ôº-ÆÕÀ×");
+		_stprintf_s(str_P2_name, L"ĞÅÏ¢Ñ§Ôº-ÆÕÀ×");
+
 
 		//Îª½ÇÉ«¶¯»­ÉèÖÃÍ¼¼¯ºÍÖ¡¼ä¸ô
-
-		animation_peashooter.set_atlas(&atlas_peashooter_idle_right);
-		animation_sunflower.set_atlas(&atlas_sunflower_idle_right);
+		animation_P1.set_atlas(&atlas_computer_idle_right);
+		animation_P2.set_atlas(&atlas_computer_idle_left);
 		animation_player3.set_atlas(&atlas_player3_idle);    //
 		animation_player4.set_atlas(&atlas_player4_idle);
 
-		animation_peashooter.set_interval(100);
-		animation_sunflower.set_interval(100);
+		animation_P1.set_interval(100);
+		animation_P2.set_interval(100);
 		animation_player3.set_interval(100);                //
 		animation_player4.set_interval(100);
 
@@ -92,8 +110,8 @@ private:
 		pos_img_2P.y = pos_img_1P.y;
 		pos_img_3P.x = pos_img_1P.x;
 		pos_img_3P.y = 300;
-		pos_img_4P.x = pos_img_2P.x;
-		pos_img_4P.y = pos_img_3P.y;
+		pos_img_4P.x = pos_img_2P.x-20;
+		pos_img_4P.y = pos_img_3P.y-10;
 
 		pos_img_1P_desc.x = (getwidth() / 2 - img_1P_desc.getwidth()) / 2 - OFFSET_X;
 		pos_img_1P_desc.y = getheight() - 120;
@@ -109,14 +127,14 @@ private:
 		pos_img_4P_gravestone.x = pos_img_2P_gravestone.x;
 		pos_img_4P_gravestone.y = pos_img_3P_gravestone.y;
 
-		pos_animation_1P.x = pos_img_1P_gravestone.x + (pos_img_1P_gravestone.x - atlas_peashooter_idle_right.get_image(0)->getwidth()) / 2 - OFFSET_X - 22;
+		pos_animation_1P.x = pos_img_1P_gravestone.x + (pos_img_1P_gravestone.x - 96) / 2 - OFFSET_X - 22;
 		pos_animation_1P.y = pos_img_1P_gravestone.y + 50;
 		pos_animation_2P.x = pos_img_2P_gravestone.x + 50;
 		pos_animation_2P.y = pos_animation_1P.y;
-		pos_animation_3P.x = pos_animation_1P.x;
-		pos_animation_3P.y = pos_img_3P_gravestone.y + 50;
-		pos_animation_4P.x = pos_animation_2P.x;
-		pos_animation_4P.y = pos_animation_3P.y;
+		pos_animation_3P.x = pos_animation_1P.x-3;
+		pos_animation_3P.y = pos_img_3P_gravestone.y + 50-3;
+		pos_animation_4P.x = pos_animation_2P.x-10;
+		pos_animation_4P.y = pos_animation_3P.y-2 ;
 
 		pos_img_1P_name.y = pos_animation_1P.y + 135;
 		pos_img_2P_name.y = pos_img_1P_name.y;
@@ -129,15 +147,33 @@ private:
 		pos_2P_selector_btn_right.x = pos_img_2P_gravestone.x + img_gravestone_left.getwidth();
 		pos_2P_selector_btn_right.y = pos_1P_selector_btn_left.y;
 
-
-		//input_timer.set_one_shot(1);
-		//input_timer.set_wait_time(500);
+		//Éí·İ
+		switch (identity_1p)
+		{
+		case 1:
+			animation_player3.set_atlas(&atlas_angel);
+			break;
+		case 2:
+			animation_player3.set_atlas(&atlas_demon);
+			break;
+		}
+		//Éí·İ
+		switch (identity_2p)
+		{
+		case 1:
+			animation_player4.set_atlas(&atlas_angel);
+			break;
+		case 2:
+			animation_player4.set_atlas(&atlas_demon);
+			break;
+		}
+	
 
 	}
 	void on_update(int delta) {
 		//½ÇÉ«¶¯»­¸üĞÂ
-		animation_peashooter.on_update(delta);
-		animation_sunflower.on_update(delta);
+		animation_P1.on_update(delta);
+		animation_P2.on_update(delta);
 		animation_player3.on_update(delta);
 		animation_player4.on_update(delta);
 
@@ -153,32 +189,10 @@ private:
 		IMAGE* p1_scorll_bk = nullptr;
 		IMAGE* p2_scorll_bk = nullptr;
 
-		switch (player_type_1)
-		{
-		case SelectorScene::PlayerType::Peashooter:
-			p1_scorll_bk = &img_peashooter_selector_background_right;
-			break;
-		case SelectorScene::PlayerType::Sunflower:
-			p1_scorll_bk = &img_sunflower_selector_background_right;
-			break;
-		default:
-			p1_scorll_bk = &img_peashooter_selector_background_right;
-			break;
-		}
-
-		switch (player_type_2)
-		{
-		case SelectorScene::PlayerType::Peashooter:
-			p2_scorll_bk = &img_peashooter_selector_background_left;
-			break;
-		case SelectorScene::PlayerType::Sunflower:
-			p2_scorll_bk = &img_sunflower_selector_background_left;
-			break;
-		default:
-			p2_scorll_bk = &img_peashooter_selector_background_left;
-			break;
-		}
-
+		
+		p1_scorll_bk = &img_peashooter_selector_background_right;
+		p2_scorll_bk = &img_sunflower_selector_background_left;
+		
 		puimage_alpha(scorll_line_x - p1_scorll_bk->getwidth(), 0, p1_scorll_bk);
 		puimage_alpha(scorll_line_x, 0,
 			p1_scorll_bk->getwidth() - scorll_line_x, 0,
@@ -201,6 +215,9 @@ private:
 		puimage_alpha(pos_img_1P_desc.x, pos_img_1P_desc.y, &img_1P_desc);
 		puimage_alpha(pos_img_2P_desc.x, pos_img_2P_desc.y, &img_2P_desc);
 
+		//pos_animation_3P
+		animation_player3.on_draw(pos_animation_3P.x, pos_animation_3P.y);
+		animation_player4.on_draw(pos_animation_4P.x, pos_animation_4P.y);
 		puimage_alpha(pos_img_1P_gravestone.x, pos_img_1P_gravestone.y, &img_gravestone_right);
 		puimage_alpha(pos_img_2P_gravestone.x, pos_img_2P_gravestone.y, &img_gravestone_left);
 		puimage_alpha(pos_img_3P_gravestone.x, pos_img_3P_gravestone.y, &img_gravestone_3);
@@ -211,38 +228,18 @@ private:
 
 
 		//äÖÈ¾1p 2p½ÇÉ«¶¯»­
-		animation_peashooter.on_draw(camera, pos_animation_1P.x, pos_animation_1P.y);
-		animation_sunflower.on_draw(camera, pos_animation_2P.x, pos_animation_2P.y);
-		animation_player3.on_draw(camera, pos_animation_3P.x, pos_animation_3P.y);
-		animation_player4.on_draw(camera, pos_animation_4P.x, pos_animation_4P.y);
+		animation_P1.on_draw(camera, pos_animation_1P.x, pos_animation_1P.y);
+		animation_P2.on_draw(camera, pos_animation_2P.x, pos_animation_2P.y);
+		
+	   //äÖÈ¾½ÇÉ«1p 2pÃû×Ö
+		pos_img_1P_name.x = pos_img_1P_gravestone.x + (img_gravestone_right.getwidth() - textwidth(str_P1_name)) / 2;
+		outtexy_shaded(pos_img_1P_name.x, pos_img_1P_name.y, str_P1_name);
+		
+		pos_img_2P_name.x = pos_img_2P_gravestone.x + (img_gravestone_left.getwidth() - textwidth(str_P2_name)) / 2;
+		outtexy_shaded(pos_img_2P_name.x, pos_img_2P_name.y, str_P2_name);
+		
 
-		//äÖÈ¾Ãû×Ö
-		switch (player_type_1)
-		{
-		case SelectorScene::PlayerType::Peashooter:
-			pos_img_1P_name.x = pos_img_1P_gravestone.x + (img_gravestone_right.getwidth() - textwidth(str_peashooter_name)) / 2;
-			outtexy_shaded(pos_img_1P_name.x, pos_img_1P_name.y, str_peashooter_name);
-			break;
-		case SelectorScene::PlayerType::Sunflower:
-			pos_img_1P_name.x = pos_img_1P_gravestone.x + (img_gravestone_right.getwidth() - textwidth(str_sunflower_name)) / 2;
-			outtexy_shaded(pos_img_1P_name.x, pos_img_1P_name.y, str_sunflower_name);
-			break;
-		}
-
-		switch (player_type_2)
-		{
-		case SelectorScene::PlayerType::Peashooter:
-			pos_img_2P_name.x = pos_img_2P_gravestone.x + (img_gravestone_left.getwidth() - textwidth(str_peashooter_name)) / 2;
-			outtexy_shaded(pos_img_2P_name.x, pos_img_2P_name.y, str_peashooter_name);
-			break;
-		case SelectorScene::PlayerType::Sunflower:
-			pos_img_2P_name.x = pos_img_2P_gravestone.x + (img_gravestone_left.getwidth() - textwidth(str_sunflower_name)) / 2;
-			outtexy_shaded(pos_img_2P_name.x, pos_img_2P_name.y, str_sunflower_name);
-			break;
-
-		}
-
-
+		
 	}
 	void on_input(const ExMessage& msg) {            //¼ÓÉÏÅÉÉúµÄĞÂ½ÇÉ«ÀàºóĞŞ¸Ä
 		//½ÇÉ«Ñ¡È¡ ³¡¾°Ìø×ª
@@ -251,63 +248,133 @@ private:
 		switch (msg.vkcode)
 		{
 		case 39://->
-			if (player_type_2 == PlayerType::Sunflower)
-			{
-				mciSendString(_T("play ui_confirm from 0"), NULL, 0, NULL);
-				player_type_2 = PlayerType::Peashooter;
-				animation_sunflower.set_atlas(&atlas_peashooter_idle_left); //×¢Òâ·½Ïò
-			}
+			//Ñ¡¶¨½ÇÉ«ÀàĞÍ
+			if ((int)player_type_2== Num)player_type_2 = (PlayerType)0;//´Ë´¦µÄ2´ú±íÒÑ¾­ÓĞ3¸ö½ÇÉ«
 			else
 			{
-				mciSendString(_T("play ui_confirm from 0"), NULL, 0, NULL);
-				player_type_2 = PlayerType::Sunflower;
-				animation_sunflower.set_atlas(&atlas_sunflower_idle_left);
+				player_type_2 = PlayerType(((int)player_type_2 + 1));
 			}
+			
+			mciSendString(_T("play ui_confirm from 0"), NULL, 0, NULL);
+			//ÎªÑ¡¶¨µÄ½ÇÉ«Éè¶¨¶¯»­ºÍÃû×Ö
+			switch (player_type_2)
+			{
+			case SelectorScene::PlayerType::Computer:
+				_stprintf_s(str_P2_name, L"ĞÅÏ¢Ñ§Ôº-ÆÕÀ×");
+				animation_P2.set_atlas(&atlas_computer_run_left);
+				break;
+			case SelectorScene::PlayerType::Math:
+				_stprintf_s(str_P2_name, L"ÀíÑ§Ôº-¬Bçæ");
+				animation_P2.set_atlas(&atlas_math_idle_left);
+				break;
+			case SelectorScene::PlayerType::Eam:
+				_stprintf_s(str_P2_name, L"¾­¹ÜÑ§Ôº-Ë¼ÀöÆÕ");
+				animation_P2.set_atlas(&EAM_idle_left);
+				break;
+			case SelectorScene::PlayerType::Archi:
+				_stprintf_s(str_P2_name, L"½¨ÖşÑ§Ôº-ÒÁÌØ");
+				animation_P2.set_atlas(&atlas_archi_idle_left);
+				break;
+			}
+
 			break;
 
 		case 37://<-
-			if (player_type_2 == PlayerType::Sunflower)
-			{
-				mciSendString(_T("play ui_confirm from 0"), NULL, 0, NULL);
-				player_type_2 = PlayerType::Peashooter;
-				animation_sunflower.set_atlas(&atlas_peashooter_idle_left); //×¢Òâ·½Ïò
-			}
+			//Ñ¡¶¨½ÇÉ«ÀàĞÍ
+			if ((int)player_type_2 ==0 )player_type_2 = (PlayerType)Num;//´Ë´¦µÄ2´ú±íÒÑ¾­ÓĞ3¸ö½ÇÉ«
 			else
 			{
-				mciSendString(_T("play ui_confirm from 0"), NULL, 0, NULL);
-				player_type_2 = PlayerType::Sunflower;
-				animation_sunflower.set_atlas(&atlas_sunflower_idle_left);
+				player_type_2 = PlayerType(((int)player_type_2 -1));
+			}
+			mciSendString(_T("play ui_confirm from 0"), NULL, 0, NULL);
+			//ÎªÑ¡¶¨µÄ½ÇÉ«Éè¶¨¶¯»­
+			//ÎªÑ¡¶¨µÄ½ÇÉ«Éè¶¨¶¯»­ºÍÃû×Ö
+			switch (player_type_2)
+			{
+			case SelectorScene::PlayerType::Computer:
+				_stprintf_s(str_P2_name, L"ĞÅÏ¢Ñ§Ôº-ÆÕÀ×");
+				animation_P2.set_atlas(&atlas_computer_run_left);
+				break;
+			case SelectorScene::PlayerType::Math:
+				_stprintf_s(str_P2_name, L"ÀíÑ§Ôº-¬Bçæ");
+				animation_P2.set_atlas(&atlas_math_idle_left);
+				break;
+			case SelectorScene::PlayerType::Eam:
+				_stprintf_s(str_P2_name, L"¾­¹ÜÑ§Ôº-Ë¼ÀöÆÕ");
+				animation_P2.set_atlas(&EAM_idle_left);
+				break;
+			case SelectorScene::PlayerType::Archi:
+				_stprintf_s(str_P2_name, L"½¨ÖşÑ§Ôº-ÒÁÌØ");
+				animation_P2.set_atlas(&atlas_archi_idle_left);
+				break;
+
 			}
 
 			break;
 		case 68://D
-			if (player_type_1 == PlayerType::Sunflower)
-			{
-				mciSendString(_T("play ui_confirm from 0"), NULL, 0, NULL);
-				player_type_1 = PlayerType::Peashooter;
-				animation_peashooter.set_atlas(&atlas_peashooter_idle_right); //×¢Òâ·½Ïò
-			}
+			//Ñ¡¶¨½ÇÉ«ÀàĞÍ
+			if ((int)player_type_1 == Num)player_type_1= (PlayerType)0;//´Ë´¦µÄ2´ú±íÒÑ¾­ÓĞ3¸ö½ÇÉ«
 			else
 			{
-				mciSendString(_T("play ui_confirm from 0"), NULL, 0, NULL);
-				player_type_1 = PlayerType::Sunflower;
-				animation_peashooter.set_atlas(&atlas_sunflower_idle_right);
+				player_type_1 = PlayerType(((int)player_type_1 + 1));
 			}
 
-			break;
-		case 65://A
-			if (player_type_1 == PlayerType::Sunflower)
+			mciSendString(_T("play ui_confirm from 0"), NULL, 0, NULL);
+			//ÎªÑ¡¶¨µÄ½ÇÉ«Éè¶¨¶¯»­ºÍÃû×Ö
+			switch (player_type_1)
 			{
-				mciSendString(_T("play ui_confirm from 0"), NULL, 0, NULL);
-				player_type_1 = PlayerType::Peashooter;
-				animation_peashooter.set_atlas(&atlas_peashooter_idle_right); //×¢Òâ·½Ïò
+			case SelectorScene::PlayerType::Computer:
+				_stprintf_s(str_P1_name, L"ĞÅÏ¢Ñ§Ôº-ÆÕÀ×");
+				animation_P1.set_atlas(&atlas_computer_run_right);
+				break;
+			case SelectorScene::PlayerType::Math:
+				_stprintf_s(str_P1_name, L"ÀíÑ§Ôº-¬Bçæ");
+				animation_P1.set_atlas(&atlas_math_idle_right);
+				break;
+			case SelectorScene::PlayerType::Eam:
+				_stprintf_s(str_P1_name, L"¾­¹ÜÑ§Ôº-Ë¼ÀöÆÕ");
+				animation_P1.set_atlas(&EAM_idle_right);
+				break;
+			case SelectorScene::PlayerType::Archi:
+				_stprintf_s(str_P1_name, L"½¨ÖşÑ§Ôº-ÒÁÌØ");
+				animation_P1.set_atlas(&atlas_archi_idle_right);
+				break;
 			}
+
+
+			break;
+
+		case 65://A
+			//Ñ¡¶¨½ÇÉ«ÀàĞÍ
+			if ((int)player_type_1 == 0)player_type_1 = (PlayerType)Num;//´Ë´¦µÄ2´ú±íÒÑ¾­ÓĞ3¸ö½ÇÉ«
 			else
 			{
-				mciSendString(_T("play ui_confirm from 0"), NULL, 0, NULL);
-				player_type_1 = PlayerType::Sunflower;
-				animation_peashooter.set_atlas(&atlas_sunflower_idle_right);
+				player_type_1 = PlayerType(((int)player_type_1 - 1));
 			}
+
+			mciSendString(_T("play ui_confirm from 0"), NULL, 0, NULL);
+			//ÎªÑ¡¶¨µÄ½ÇÉ«Éè¶¨¶¯»­ºÍÃû×Ö
+			switch (player_type_1)
+			{
+			case SelectorScene::PlayerType::Computer:
+				_stprintf_s(str_P1_name, L"ĞÅÏ¢Ñ§Ôº-ÆÕÀ×");
+				animation_P1.set_atlas(&atlas_computer_run_right);
+				break;
+			case SelectorScene::PlayerType::Math:
+				_stprintf_s(str_P1_name, L"ÀíÑ§Ôº-¬Bçæ");
+				animation_P1.set_atlas(&atlas_math_idle_right);
+				break;
+			case SelectorScene::PlayerType::Eam:
+				_stprintf_s(str_P1_name, L"¾­¹ÜÑ§Ôº-Ë¼ÀöÆÕ");
+				animation_P1.set_atlas(&EAM_idle_right);
+				break;
+			case SelectorScene::PlayerType::Archi:
+				_stprintf_s(str_P1_name, L"½¨ÖşÑ§Ôº-ÒÁÌØ");
+				animation_P1.set_atlas(&atlas_archi_idle_right);
+				break;
+			}
+
+
 			break;
 		case 13://»Ø³µ
 			mciSendString(_T("play ui_confirm from 0"), NULL, 0, NULL);
@@ -315,33 +382,57 @@ private:
 
 		}
 
+	
+
+
 	};
 	void exit() {
 		//¸ù¾İÑ¡½ÇÀàĞÍ¸³ÖµÍæ¼Ò¶ÔÏó
 		switch (player_type_1)
 		{
-		case SelectorScene::PlayerType::Peashooter:
-			player_1P = new PeashooterPlayer();
+		case SelectorScene::PlayerType::Computer:
+			player_1P = new ComputerPlayer();
 			player_1P->id = PlayerID::P1;
 			break;
-		case SelectorScene::PlayerType::Sunflower:
-			player_1P = new SunflowerPlayer();
+		case SelectorScene::PlayerType::Math:
+			player_1P = new MathPlayer();
+			player_1P->id = PlayerID::P1;
+			break;
+		case SelectorScene::PlayerType::Eam:
+			player_1P = new EAMPlayer();
+			player_1P->id = PlayerID::P1;
+			break;
+		case SelectorScene::PlayerType::Archi:
+			player_1P = new ArchiPlayer();
 			player_1P->id = PlayerID::P1;
 			break;
 
 		}
 		switch (player_type_2)
 		{
-		case SelectorScene::PlayerType::Peashooter:
-			player_2P = new PeashooterPlayer();
+		case SelectorScene::PlayerType::Computer:
+			player_2P = new ComputerPlayer();
 			player_2P->id = PlayerID::P2;
 			break;
-		case SelectorScene::PlayerType::Sunflower:
-			player_2P = new SunflowerPlayer();
+		case SelectorScene::PlayerType::Math:
+			player_2P = new MathPlayer();
 			player_2P->id = PlayerID::P2;
 			break;
-
+		case SelectorScene::PlayerType::Eam:
+			player_2P = new EAMPlayer();
+			player_2P->id = PlayerID::P2;
+			break;
+		case SelectorScene::PlayerType::Archi:
+			player_2P = new ArchiPlayer();
+			player_2P->id = PlayerID::P2;
+			break;
 		}
+
+		//ÉèÖÃÉí·İ±êÊ¶ ÓÃÓÚÑ¡½Ç³¡¾°µÄÇĞ»»
+		player_1P->setIdentity(identity_1p);
+		player_2P->setIdentity(identity_1p);
+
+		
 	}
 
 private:
@@ -371,20 +462,20 @@ private:
 	POINT pos_2P_selector_btn_left = { 0 };//2PÏò×óÇĞ»»°´Å¥Î»ÖÃ
 	POINT pos_2P_selector_btn_right = { 0 };//2P ÏòÓÒÇĞ»»°´Å¥Î»ÖÃ
 
-	Animation animation_peashooter; //Íã¶¹¶¯»­ -->1p¶¯»­
-	Animation animation_sunflower;//ÏòÈÕ¿û¶¯»­-->2p¶¯»­
+	Animation animation_P1; //1p¶¯»­
+	Animation animation_P2;//2p¶¯»­
 	Animation animation_player3;
 	Animation animation_player4;
 
 
-	PlayerType player_type_1 = PlayerType::Peashooter;//1p 2p½ÇÉ«ÀàĞÍ
-	PlayerType player_type_2 = PlayerType::Sunflower;
+	PlayerType player_type_1 = PlayerType::Computer;//1p 2p½ÇÉ«ÀàĞÍ 
+	PlayerType player_type_2 = PlayerType::Computer;
 
-	LPCTSTR str_peashooter_name = _T("½¨ÖşÑ§Ôº");      //ÕâÀïÏÈÓÃ³õÊ¼Ãû×Ö´úÌæ ÈËÎï²¹È«ºó¸Ä
-	LPCTSTR str_sunflower_name = _T("ĞÅÏ¢Ñ§Ôº");
+	TCHAR str_P1_name[256] ;      //ÕâÀïÏÈÓÃ³õÊ¼Ãû×Ö´úÌæ ÈËÎï²¹È«ºó¸Ä
+	TCHAR str_P2_name[256];
 
 	int scorll_line_x = 0; //±³¾°°å¹ö¶¯Ïß
-
+	int Num=3;//½ÇÉ«ÊıÁ¿-1
 
 
 private:

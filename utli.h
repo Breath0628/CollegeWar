@@ -3,6 +3,11 @@
 #pragma comment(lib,"MSIMG32.LIB")
 #include "camera.h"
 #include "vector2.h"
+#include <iostream>
+#include <fstream>
+#include <ctime>
+#include <string>
+
 
 inline void flip_image(IMAGE* src,IMAGE* dst){
 	//图片翻转
@@ -74,4 +79,54 @@ inline void line(const Camera& camera, int x1, int y1, int x2, int y2)
 	line((int)(x1 - pos_camera.x), (int)(y1 - pos_camera.y),
 		(int)(x2 - pos_camera.x), (int)(y2 - pos_camera.y)
 	);
+}
+
+
+// 获取当前时间的字符串表示
+std::string getCurrentTime() {
+	std::time_t now = std::time(nullptr);
+	char buf[80];
+	std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+	return std::string(buf);
+}
+
+// 将字符串和当前时间写入文件
+void writeStringAndTimeToFile(const std::string & filename, const std::string & text) {
+	std::ofstream outFile(filename, std::ios::app);
+	if (!outFile) {
+		throw std::runtime_error("无法打开文件进行写入: " + filename);
+	}
+
+	// 写入字符串
+	outFile << text;
+
+	// 获取当前时间字符串
+	std::string currentTime = getCurrentTime();
+
+	
+	// 写入时间
+	outFile << currentTime<<endl;
+
+	if (!outFile) {
+		throw std::runtime_error("写入文件失败: " + filename);
+	}
+
+	outFile.close();
+}
+
+// 从文件中读出时间
+std::string readTimeFromFile(const std::string& filename) {
+	std::ifstream inFile(filename);
+	if (!inFile) {
+		throw std::runtime_error("无法打开文件进行读取: " + filename);
+	}
+
+	std::string content;
+	std::getline(inFile, content);
+	if (!inFile) {
+		throw std::runtime_error("读取文件失败: " + filename);
+	}
+
+	inFile.close();
+	return content;
 }

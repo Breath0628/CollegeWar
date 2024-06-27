@@ -1,10 +1,18 @@
 #pragma once
+#define VK_CTRL           0x11   //Ctrl键
+#define VK_SHIFT          0x10   //shift键
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <ctime>
+#include <stdexcept>
 #include "camera.h"
 #include <graphics.h>
 #include "vector2.h"
 #include "platform.h"
 #include "bullet.h"
 #include "player_id.h"
+
 extern std::vector<Bullet*>bullet_list;//子弹对象  
 extern std::vector<Platform> platform_list; //平台对象
 extern Camera main_camera;
@@ -21,16 +29,77 @@ public:
 		timer_attack.set_callback([&]() {
 			can_attck = 1;
 			});
-		
+
+		//返回主菜单倒计时
+		dieTimer.set_callback([&]() {
+			try {
+				char buffer[128];
+				char text[128];
+				sprintf(text, "P%d失败!",int(id)+1);
+
+				writeStringAndTimeToFile("record.txt", text);
+				//std::string readTime = readTimeFromFile("record.txt");
+			}
+			catch (const std::exception& e) {
+				std::cerr << "异常: " << e.what() << std::endl;
+			}
+			scene_manager->switch_to(SceneManager::SceneType::Menu);
+			});
+		dieTimer.set_one_shot(1);
+		dieTimer.set_wait_time(5000);
+
+		//加载恢复图集资源
+		begin.load_from_file(_T("resources/recovery/begin%d.png"), 2);
+		recovery.load_from_file(_T("resources/recovery/recovery%d.png"), 3);
+		//配置恢复动画
+		animation_begin.set_atlas(&begin);
+		animation_begin.set_interval(75);
+		animation_begin.set_loop(1);
+		//animation_begin.set_callback([&]() {can_remove = 0; });
+
+		animation_recovery.set_atlas(&recovery);
+		animation_recovery.set_interval(200);
+		animation_recovery.set_loop(1);
+		//animation_recovery.set_callback([&]() {can_remove = 0; });
 	};
 	~Player();
 	
+	virtual void setIdentity(int ident){
+	//设置身份
+		identity = ident;
+		if (identity == 1 && hp != 200) {
+			//天使身份
+			hp = 200;
+		}
+		if (identity == 2 && attack_cd != 333) {
+			//恶魔身份
+			attack_cd = 333;
+		}
+	}
+
 	virtual void on_update(int delta) {
+		if (pos.y>800)//掉出
+		{
+			hp = 0;
+		}
 		if (hp<=0)
 		{
-			die();
+			dieTimer.on_update(delta);
+			
 		}
-		dieTimer.on_update(delta);
+		if (pos.x < 0)
+		{
+			pos.x = 0;
+		}
+		if (pos.x > 1210)
+		{
+			pos.x = 1210;
+		}
+		
+		
+		if (!exam_suc && exam_time >= 5000) {
+			mciSendString(_T("play upgrade from 0"), NULL, 0, NULL);
+			exam_suc = 1; hp +=100; }
 		int direction = is_right_key_down - is_left_key_down;//玩家是否移动
 		
 		if (direction != 0) {
@@ -40,11 +109,37 @@ public:
 			float dis = direction *speed * delta;//向右移动距离
 			run(dis);
 		}
+		
 		else
 		{
-			//静止
-			current_animation = is_facing_right ? &animation_idle_right : &animation_idle_left;
+			if (hp<=0)
+			{
+				current_animation = is_facing_right ? &animation_idle_right : &animation_idle_left;
+			}
+			else {
+				//静止
+				current_animation = is_facing_right ? &animation_idle_right : &animation_idle_left;
+			}
 		}
+
+		switch (id)
+		{
+		case PlayerID::P1:
+			if (shift_down)
+			{
+				animation_recovery.on_update(delta);
+				exam_time += delta;
+				animation_begin.on_update(delta);
+			}
+		case PlayerID::P2:
+			if (ctrl_down)
+			{
+				exam_time += delta;
+				animation_recovery.on_update(delta);
+				animation_begin.on_update(delta);
+			}
+		}
+
 		timer_attack.on_update(delta);
 		move_collide(delta);
 		current_animation->on_update(delta);
@@ -53,6 +148,40 @@ public:
 	virtual void on_draw(const Camera& camera) 
 	{
 		current_animation->on_draw(camera,(int)(pos.x), (int)(pos.y));//渲染当前动画
+		TCHAR text2[256];
+		if (!exam_suc)
+		{
+			switch (id)
+			{
+			case PlayerID::P1:
+				if (shift_down)
+				{
+					animation_recovery.on_draw(camera, (int)(pos.x) - 60, (int)(pos.y) - 50);
+				}
+			case PlayerID::P2:
+				if (ctrl_down)
+				{
+					animation_recovery.on_draw(camera, (int)(pos.x) - 60, (int)(pos.y) - 50);
+				}
+			}
+		}
+		if (exam_suc)
+		{
+			animation_begin.on_draw(camera, (int)(pos.x) - 12, (int)(pos.y) - 70);
+		}
+		//死亡文字播报
+		if (hp <= 0)
+		{	
+			settextstyle(54, 0, _T("IPix"), 0, 0, 700, 0, 0, 0);
+			setbkmode(TRANSPARENT);
+			settextcolor(RED);
+			_stprintf_s(text2, L"P%d死亡，游戏结束！", (int)id + 1);
+
+			outtextxy(450, 300, text2);
+
+		}
+		
+
 		TCHAR text[256];
 		//显示蓝条和血量
 		settextstyle(24, 0, _T("IPix"), 0, 0, 700, 0, 0, 0);
@@ -76,7 +205,7 @@ public:
 			outtextxy(1000, 650, text);
 			break;
 		}
-		
+
 	}
 
 	virtual void on_input(const ExMessage &msg) {
@@ -123,6 +252,15 @@ public:
 					mp =0;
 				}
 				break;
+			case VK_SHIFT://shift键
+				if (msg.message == WM_KEYUP && !exam_suc) {
+					shift_down = 0;
+				}
+				else if (msg.message == WM_KEYDOWN) {
+					shift_down = 1;
+				}
+
+				break;
 			default:
 				break;
 			}
@@ -153,6 +291,14 @@ public:
 				if (mp >= 100) {
 					on_attack_ex();
 					mp = 0;
+				}
+				break;
+			case VK_CTRL://ctrl键
+				if (msg.message == WM_KEYUP && !exam_suc) {
+					ctrl_down = 0;
+				}
+				else if (msg.message == WM_KEYDOWN) {
+					ctrl_down = 1;
 				}
 				break;
 			default:
@@ -219,19 +365,10 @@ public:
 	};
 	virtual void on_attack_ex(//特色攻击
 	) {};
-	virtual void die(){
-	//	current_animation = &animation_die;//切换为死亡动画
-		//死亡后返回主菜单定时器
-		dieTimer.set_callback([&]() {
-			scene_manager->switch_to(SceneManager::SceneType::Menu);
-			});
-		dieTimer.set_one_shot(1);
-		dieTimer.set_wait_time(1000);
-
-	}//死亡
 
 public:
 	PlayerID id; //玩家id
+	int identity = 0;//玩家身份 1天使 2恶魔
 	Vector2<float> pos;//玩家位置
 	Vector2<float> size = {96,96};//玩家大小
 
@@ -242,16 +379,21 @@ public:
 
 	int mp = 0;//蓝条
 	int hp = 100;//红条
+	
 
 	//键位是否被按下 -->判断移动 
+	bool shift_down = 0;
+	bool ctrl_down = 0;
 	bool is_left_key_down=0;
 	bool is_right_key_down = 0;
 	bool is_facing_right = 1;//面向
 	const float speed=0.5f;//跑动速度
 	const float jump_speed = -1.2f;//跳跃速度
 	const float G = 0.00320f;//重力速度
+	
 	Vector2<float> velocity;//角色矢量速度
-
+	Atlas begin;
+	Atlas recovery;
 	Animation* current_animation;//当前要播放的动画
 	Animation animation_idle_left; //玩家动画
 	Animation animation_idle_right;
@@ -260,6 +402,10 @@ public:
 	Animation animation_attack_ex_left;//朝左特殊攻击动画
 	Animation animation_attack_ex_right;
 	Animation animation_die;//死亡动画
+	Animation animation_begin;//考研开始
+	Animation animation_recovery;//恢复动画
+	int exam_time = 0;
+	bool exam_suc = 0;
 	Timer dieTimer;//角色死亡后返回主菜单倒计时
 };
 

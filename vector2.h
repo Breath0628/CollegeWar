@@ -12,6 +12,12 @@ public:
 	Vector2() = default;
 	~Vector2() = default;
 
+	//复制构造函数
+	Vector2(const T &vec2) {
+		x = vec2.x;
+		y = vec2.y;
+	}
+
 	Vector2(T x, T y) :x(x), y(y) {}
 
 	Vector2<T> operator+(const Vector2<T>& vec)const {

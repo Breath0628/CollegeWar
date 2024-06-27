@@ -10,8 +10,8 @@
 class Bullet
 {
 public:
-	Bullet()=default;
-	~Bullet()=default;
+	Bullet() { TotalCount++; };
+	~Bullet() { TotalCount--; };
 
 	void set_callback(std::function<void()> callback) {
 		//设置回调函数
@@ -28,7 +28,8 @@ public:
 		return this->pos.x + this->size.x / 2 >= pos.x 
 			&& this->pos.x + this->size.x / 2 <= pos.x + size.x
 			&& this->pos.y + this->size.y / 2 >= pos.y
-			&& this->pos.y + this->size.y <= pos.y + size.y;
+			&& this->pos.y + this->size.y <= pos.y + size.y
+			&&valid;
 
 	}		
 	virtual void on_update(int delta) {
@@ -42,7 +43,8 @@ public:
 		return (pos.x + size.x <= 0 || pos.x >= getwidth()) || (pos.y >= getheight() || pos.y + size.y <= 0);
 
 	}
-
+public:
+	friend int getBulletCount();
 
 public:
 	PlayerID target_id;//子弹要碰撞的目标id
@@ -53,6 +55,11 @@ public:
 	bool valid = true;//子弹有效
 	bool can_remove = false;//可以移除
 	std::function<void()> callback;//子弹碰撞后回调函数
-
+private:
+	static int TotalCount;//子弹总数
 };
 
+
+int getBulletCount(){
+	return Bullet::TotalCount;//返回子弹数量
+};//友元

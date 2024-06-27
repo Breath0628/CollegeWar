@@ -11,8 +11,10 @@ class Atlas
 public:
 
 	Atlas() = default;
-	~Atlas() = default;
-	void load_from_file(LPCTSTR path_template, int num) {
+	~Atlas(){
+		img_list.clear();//清空图集
+	};
+	void load_from_file(LPCTSTR path_template, int num=1) {
 		//从文件载入图集
 		img_list.clear();
 		img_list.resize(num);
@@ -32,7 +34,7 @@ public:
 		return (int)img_list.size();
 	}
 
-	IMAGE* get_image(int idx) {
+	IMAGE* get_image(int idx=0) {
 		//返回图集第i个图片的指针
 		if (idx < 0 || idx >= img_list.size()) return nullptr;
 		return &img_list[idx];

@@ -8,9 +8,10 @@
 #include "timer.h"
 #include "Identity.h"
 using namespace std;
-extern IDWaitRoom NowUserId;//用户在房间中的id
+
 extern SceneManager* scene_manager;
 extern bool Running;
+extern int identity_1p, identity_2p; //1P2P的身份
 
 
 class WaitScene :public Scene
@@ -250,33 +251,33 @@ public:
 		switch (msg.vkcode)
 		{
 		case VK_LEFT:
-			if ((int)(P2Identity) == 2)
+			if ((int)(P4Identity) == 2)
 			{
-				P2Identity = (IdentityMark)1;	
-			}else P2Identity = (IdentityMark)2; //将身份码切换为下一个 
+				P4Identity = (IdentityMark)1;
+			}else P4Identity = (IdentityMark)2; //将身份码切换为下一个 
 			break;
 		case VK_RIGHT:
-			if ((int)(P2Identity) == 1)
-			{
-				P2Identity = (IdentityMark)2;
-			}else P2Identity = (IdentityMark)1; //将身份码切换为上一个 
-			break;
-		case 65://a
 			if ((int)(P4Identity) == 1)
 			{
 				P4Identity = (IdentityMark)2;
 			}else P4Identity = (IdentityMark)1; //将身份码切换为上一个 
+			break;
+		case 65://a
+			if ((int)(P2Identity) == 1)
+			{
+				P2Identity = (IdentityMark)2;
+			}else P2Identity = (IdentityMark)1; //将身份码切换为上一个 
 			
 			break;
 
 		case 68://d
-			if ((int)(P4Identity) == 1)
+			if ((int)(P2Identity) == 1)
 			{
-				P4Identity = (IdentityMark)2;
+				P2Identity = (IdentityMark)2;
 			}
 			else
 			{
-				P4Identity = (IdentityMark)1; //将身份码切换为上一个 
+				P2Identity = (IdentityMark)1; //将身份码切换为上一个 
 			}
 			break;
 		case 32:
@@ -317,7 +318,28 @@ public:
 
 	};
 	               
-	void on_exit() {
+	void exit() {
+	
+		//设置身份标识 用于选角场景的切换
+		switch (P4Identity)
+		{
+		case IdentityMark::Angel:
+			identity_2p = 1;
+			break;
+		case IdentityMark::Daemon:
+			identity_2p = 2;
+			break;
+		}
+		switch (P2Identity)
+		{
+		case IdentityMark::Angel:
+			identity_1p = 1;
+			break;
+		case IdentityMark::Daemon:
+			identity_1p = 2;
+			break;
+		}
+
 	}
 
 private:

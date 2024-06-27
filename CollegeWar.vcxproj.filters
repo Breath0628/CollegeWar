@@ -66,25 +66,10 @@
     <ClInclude Include="game_scene.h">
       <Filter>头文件\场景</Filter>
     </ClInclude>
-    <ClInclude Include="pea_bullet.h">
-      <Filter>头文件\角色</Filter>
-    </ClInclude>
-    <ClInclude Include="peashooter_player.h">
-      <Filter>头文件\角色</Filter>
-    </ClInclude>
     <ClInclude Include="player.h">
       <Filter>头文件\角色</Filter>
     </ClInclude>
     <ClInclude Include="player_id.h">
-      <Filter>头文件\角色</Filter>
-    </ClInclude>
-    <ClInclude Include="sun_bullet.h">
-      <Filter>头文件\角色</Filter>
-    </ClInclude>
-    <ClInclude Include="sun_bullet_ex.h">
-      <Filter>头文件\角色</Filter>
-    </ClInclude>
-    <ClInclude Include="sunflower_player.h">
       <Filter>头文件\角色</Filter>
     </ClInclude>
     <ClInclude Include="rank_scene.h">
@@ -96,10 +81,43 @@
     <ClInclude Include="wait_scene.h">
       <Filter>头文件\场景</Filter>
     </ClInclude>
+    <ClInclude Include="computer_player.h">
+      <Filter>头文件\角色</Filter>
+    </ClInclude>
+    <ClInclude Include="computer_bullet.h">
+      <Filter>头文件\角色</Filter>
+    </ClInclude>
+    <ClInclude Include="math_player.h">
+      <Filter>头文件\角色</Filter>
+    </ClInclude>
+    <ClInclude Include="math_bullet.h">
+      <Filter>头文件\角色</Filter>
+    </ClInclude>
+    <ClInclude Include="repos_scene.h">
+      <Filter>头文件\场景</Filter>
+    </ClInclude>
+    <ClInclude Include="eam_bullet.h">
+      <Filter>头文件\角色</Filter>
+    </ClInclude>
+    <ClInclude Include="eam_bullet_ex.h">
+      <Filter>头文件\角色</Filter>
+    </ClInclude>
+    <ClInclude Include="eam_player.h">
+      <Filter>头文件\角色</Filter>
+    </ClInclude>
+    <ClInclude Include="archi_bullet.h">
+      <Filter>头文件\角色</Filter>
+    </ClInclude>
+    <ClInclude Include="archi_player.h">
+      <Filter>头文件\角色</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="record.txt" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
 #pragma once
+#include "timer.h"
 #include "camera.h"
 #include "animation.h"
 
@@ -12,12 +13,25 @@ public:
 		float y, left, right;
 	};
 
-	Platform()=default;
-	~Platform()= default;
+	Platform() = default;
+	~Platform() = default;
 public:
 	CollisionShape shape;//碰撞形状
 	IMAGE* img = nullptr; //平台图
 	POINT render_pos = { 0 };//渲染位置
+
+
+	// 更新平台位置的函数
+	void move(int a, int b)
+	{
+		render_pos.x += speed * toRight;
+		shape.left += speed * toRight;
+		shape.right += speed * toRight;
+		if (shape.left <= a || shape.right >= b) {
+			toRight = -toRight;
+		}
+	}
+
 
 	void on_draw(const Camera& camera)const
 	{
@@ -29,7 +43,7 @@ public:
 		}
 	}
 
-private:
-
+public:
+	int toRight = 1;
+	float speed = 3;
 };
-

@@ -32,6 +32,7 @@ public:
 		mciSendString(_T("play bgm_menu repeat from 0"),NULL,0,NULL);
 		settextstyle(60, 0, _T("IPix"));
 		setbkmode(TRANSPARENT);
+		settextcolor(WHITE);
 		loadimage(&hand, _T("resources/menu/attack.png"));
 		handPos = { textHead.x-hand.getwidth()+5, textHead.y-10};
 		
@@ -49,13 +50,16 @@ public:
 	
 	}
 	void on_draw(const Camera& camera){
+		settextstyle(60, 0, _T("IPix"), 0, 0, 0, 0, 0, 0);
+		setbkmode(TRANSPARENT);
+		settextcolor(WHITE);
 		//背景渲染
 		putimage(bkPos.x, bkPos.y, bk1);
 		puimage_alpha(titlePos.x, titlePos.y, titleImg);
-		outtextxy(textHead.x, textHead.y, L"加入房间");
-		outtextxy(textHead.x, textHead.y+90, L"创建房间");
+		outtextxy(textHead.x, textHead.y, L"开始游戏");
+		outtextxy(textHead.x, textHead.y+90, L"故事背景");
 		outtextxy(textHead.x, textHead.y+180, L"角色仓库");
-		outtextxy(textHead.x, textHead.y+270, L"荣誉榜单");
+		outtextxy(textHead.x, textHead.y+270, L"耻辱榜单");
 		outtextxy(textHead.x, textHead.y+360, L"退出游戏");
 		puimage_alpha(handPos.x, handPos.y ,&hand);
 		puimage_alpha(handPos.x+330, handPos.y-10, &hand2);
@@ -84,20 +88,20 @@ public:
 			{
 				mciSendString(_T("play ui_confirm from 0"), NULL, 0, NULL);
 
-				if (handPos.y <= textHead.y - 10)scene_manager->switch_to(SceneManager::SceneType::Rank);
+				if (handPos.y <= textHead.y - 10)scene_manager->switch_to(SceneManager::SceneType::WAIT);
 				else if (handPos.y <= textHead.y - 10 + 90)
 				{
 					scene_manager->switch_to(SceneManager::SceneType::WAIT);
 				
 				}
-				else if (handPos.y <= textHead.y - 10 + 180)scene_manager->switch_to(SceneManager::SceneType::Rank);
+				else if (handPos.y <= textHead.y - 10 + 180)scene_manager->switch_to(SceneManager::SceneType::Repos);
 				else if (handPos.y <= textHead.y - 10 + 270)scene_manager->switch_to(SceneManager::SceneType::Rank);
 				else if (handPos.y <= textHead.y - 10 + 360)Running = 0;
 				
 			}
 		}
 	};
-	void on_exit(){
+	void exit(){
 	}
 
 private:

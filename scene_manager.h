@@ -7,7 +7,7 @@ extern Scene* game_scene;
 extern Scene* selector_scene;
 extern Scene* rank_scene;
 extern Scene* wait_scene;
-
+extern Scene* repos_scene;
 class SceneManager {
 
 public:
@@ -17,7 +17,8 @@ public:
 		Game,
 		WAIT,
 		Selector,
-		Rank
+		Rank,
+		Repos
 	};
 
 	SceneManager() =default;
@@ -46,6 +47,9 @@ public:
 			break;
 		case SceneManager::SceneType::WAIT:
 			current_scene = wait_scene;
+			break;
+		case SceneManager::SceneType::Repos:
+			current_scene = repos_scene;
 			break;
 		default:
 			break;

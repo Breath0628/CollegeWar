@@ -1,4 +1,8 @@
 #pragma once
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <windows.h>  // 用于 LPCTSTR 类型和相关函数
 #include <graphics.h>
 #include "scene.h"
 #include <iostream>
@@ -7,6 +11,7 @@
 #include "camera.h"
 #include "timer.h"
 #include "algorithm"
+#include "utli.h"
 using namespace std;
 
 extern SceneManager* scene_manager;
@@ -49,6 +54,30 @@ public:
 	}
 	void on_draw(const Camera& camera) {
 		putimage(0, 0, &rank_bk);
+
+		std::ifstream inFile("record.txt");
+		string str;
+		int i = 0;
+		while (std::getline(inFile,str))
+		{
+			settextstyle(40, 0, _T("IPix"));
+			setbkmode(TRANSPARENT);
+			settextcolor(WHITE);
+			// 获取字符串长度
+			int len;
+			int strLength = str.length() + 1;
+			// 计算需要的缓冲区大小
+			len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), strLength, 0, 0);
+			// 创建一个新的 wchar_t 数组
+			wchar_t* buffer = new wchar_t[len];
+			// 将字符串转换为 wchar_t 数组
+			MultiByteToWideChar(CP_ACP, 0, str.c_str(), strLength, buffer, len);
+			outtextxy(252, 100+40*i , buffer);
+			i++;
+		}
+		
+	
+
 		TCHAR score[5];
 		if (nowuser.Score != -1)
 		{

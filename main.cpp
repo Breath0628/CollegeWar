@@ -8,7 +8,7 @@
 #include "rank_scene.h"
 #include "wait_scene.h"
 #include "scene_manager.h"
-
+#include "repos_scene.h"
 #include "player.h"
 #include "platform.h"
 #include "atlas.h"
@@ -24,17 +24,20 @@ Scene* game_scene = nullptr;
 Scene* selector_scene = nullptr;
 Scene* rank_scene = nullptr;
 Scene* wait_scene = nullptr;
+Scene* repos_scene = nullptr;
 SceneManager* scene_manager;
 Camera main_camera;
 std::vector<Platform> platform_list; //平台对象
 bool is_debug=0;//调试模式
 Player* player_1P=nullptr;//1p对象
 Player* player_2P=nullptr;//2p对象
+int identity_1p, identity_2p; //1P2P的身份
 std::vector<Bullet*>bullet_list;//子弹对象 
 ExMessage lastMsg;
 bool Running = 1;
 IDWaitRoom NowUserId;//用户在房间中的id
-
+// 子弹数量静态成员变量
+int Bullet::TotalCount = 0;
 
 int main() {
 	ExMessage msg;
@@ -55,6 +58,7 @@ int main() {
 	selector_scene = new SelectorScene();
 	rank_scene = new RankScene();
 	wait_scene = new WaitScene();
+	repos_scene = new ReposScene();
 	scene_manager = new SceneManager();
 
 	scene_manager->set_current_scene(menu_scene);
